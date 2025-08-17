@@ -1,6 +1,7 @@
 # Architecture Guide
 
 ## Aug 2025 Update
+- **Memory-Efficient Optimizer (v0.6.5)**: Completely refactored `src/optimize.ts` to solve memory issues that prevented comprehensive parameter sweeps. Implemented chunked processing (configurable chunk sizes), progress tracking with resumption capability, garbage collection monitoring, and memory usage logging. Added new npm scripts with increased memory allocation and garbage collection flags. Successfully tested 48 parameter sets without crashes, enabling systematic discovery of optimal profitable parameters.
 - **E3 Strategy Critical Fix (v0.6.4)**: Fixed major logic bug in `src/strategy/e3.ts` where `shouldEnter` method was not properly evaluating all conditions. The strategy was always triggering regardless of volume Z-score, order book imbalance, or funding rate thresholds. After fix: strategy now generates 60,000+ realistic trades over 7+ months with profitable parameter sets achieving +4.39 PnL.
 - **Strategy Layer**: E3 baseline moved into **high-trade mode** for testing backtest infrastructure.
 - **Backtest Regimes**: Regime classifier (`regimes.ts`) confirmed wired into backtest loop; metrics breakdown placeholder logs regimes for each tick.
@@ -39,6 +40,24 @@
 ## Design Principle
 - **Hybrid Architecture**: Rule-based baseline ensures stable profit-seeking trades; LLM acts as a filter/confirmation layer.
 - **Traceability**: Every feature, decision, and LLM response logged for audit and iterative optimization.
+
+## Memory Optimization Implementation (v0.6.5)
+The optimizer was completely refactored to handle large-scale parameter sweeps without memory crashes:
+
+**Key Features:**
+- **Chunked Processing**: Configurable batch sizes (default: 5 parameter sets per chunk)
+- **Progress Persistence**: Saves results after each chunk to `progress_*.json` files
+- **Memory Monitoring**: Logs heap usage and forces garbage collection between chunks
+- **Resumption Capability**: Can resume interrupted optimizations from saved progress
+- **Enhanced npm Scripts**: `optimize:memory` with `--max-old-space-size=4096` and `--expose-gc`
+
+**Technical Implementation:**
+- `chunkArray()` function splits parameter sets into manageable batches
+- `forceGC()` function monitors memory usage and triggers garbage collection
+- Progress files include timestamp, completion status, and all intermediate results
+- Configurable via `chunkSize` and `saveProgress` in optimization config files
+
+This enables comprehensive parameter optimization for maximum profitability discovery.
 
 This document defines the high-level system architecture for the trading automation platform.
 

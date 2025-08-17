@@ -1,12 +1,13 @@
 {
   "name": "drift-e3-bot",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "license": "MIT",
   "scripts": {
     "start": "ts-node --transpile-only src/index.ts",
     "backtest": "ts-node --transpile-only src/backtest.ts",
     "visualize": "ts-node --transpile-only src/visualize.ts",
-    "optimize": "ts-node --transpile-only src/optimize.ts"
+    "optimize": "node --expose-gc --max-old-space-size=8192 -r ts-node/register/transpile-only src/optimize.ts",
+    "optimize:memory": "node --expose-gc --max-old-space-size=4096 -r ts-node/register/transpile-only src/optimize.ts"
   },
   "dependencies": {
     "@drift-labs/sdk": "^2.134.0",

@@ -1,0 +1,16 @@
+{
+  "market": "SOL-PERP",
+  "startDate": "20230101",
+  "endDate": "20230110",
+  "chunkSize": 3,
+  "saveProgress": true,
+  "maxDrawdown": 0.30,
+  "comment": "Small test run to validate memory-efficient optimizer",
+  "params": {
+    "bodyOverAtr": [0.8, 1.0, 1.2],
+    "volumeZ": [1.0, 1.5],
+    "premiumPct": [0.003, 0.005],
+    "realizedVol": [5.0, 7.0],
+    "spreadBps": [50, 75]
+  }
+}

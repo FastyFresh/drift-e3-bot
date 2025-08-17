@@ -1,7 +1,7 @@
 # Drift E3 Bot
 
 A trading bot for **Drift Protocol** with backtesting and parameter optimization.
-Current Version: **v0.6.4**
+Current Version: **v0.6.5**
 
 ---
 
