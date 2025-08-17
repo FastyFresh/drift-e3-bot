@@ -9,9 +9,9 @@
 - **Backtest Data Layer**: Added `driftDataProvider.ts` to pull historical SOL-PERP trades + funding from Drift Labs’ S3 archives, cache locally, and aggregate into OHLCV candles for replay.
 
 ## Next Steps
-- Implement offline backtesting harness (`backtest.ts`) to replay historical data.
 - Tune thresholds systematically using logged trade outcomes.
 - Iteratively refine LLM prompts with enriched feature context.
+- Run full historical backtests (2021–2025) with regime segmentation to assess performance in bull, bear, chop, and crash phases.
 
 This guide is the **single source of truth** for the trading automation system project. It contains the project overview, goals, current status, workflow rules, and instructions for resuming context.
 
