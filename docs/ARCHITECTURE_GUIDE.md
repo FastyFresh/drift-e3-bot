@@ -1,5 +1,33 @@
 # Architecture Guide
 
+## Updated System Architecture (v0.1.1)
+1. **Market Data (`marketData.ts`)**
+   - Extracts features: bodyOverAtr, volumeZ, obImbalance, premiumPct.
+   - Now enriched with fundingRate, openInterest, realizedVol, spreadBps.
+
+2. **Baseline Strategy (`strategy/e3.ts`)**
+   - Applies profitability-focused rules using configurable thresholds (`CONFIG.thresholds`).
+   - Produces trigger + side decision with reasons[] explaining trade logic.
+
+3. **AI Layer (`aiGate.ts`)**
+   - Sends enriched feature context to Ollama LLM.
+   - Returns decision + confidence, along with prompt and raw response (audited in DB).
+
+4. **Risk (`risk.ts`)**
+   - Daily loss cap, cooldown, position sizing, adaptive logic.
+
+5. **Execution (`drift.ts`)**
+   - Places perps IOC orders on Drift Protocol.
+   - Slippage management via config.
+
+6. **Database (`db.ts`)**
+   - Logs signals, orders, trades, PnL.
+   - Audit fields: prompt, raw LLM responses tied to each decision.
+
+## Design Principle
+- **Hybrid Architecture**: Rule-based baseline ensures stable profit-seeking trades; LLM acts as a filter/confirmation layer.
+- **Traceability**: Every feature, decision, and LLM response logged for audit and iterative optimization.
+
 This document defines the high-level system architecture for the trading automation platform.
 
 ---

@@ -1,5 +1,30 @@
 # Version Control Guide
 
+## Current Practices (v0.1.1)
+- **Atomic Commits**: Code and docs changes grouped by concern (e.g., `feat(db):`, `feat(e3):`, `docs:`).
+- **Tags**: Create semantic tags for major milestones.
+  - Example: `v0.1.0` = first E2E loop with LLM + audit logging.
+  - Example: `v0.1.1` = enriched features + config thresholds.
+- **Branching**:
+  - `main`: stable, functional bot.
+  - `feature/*`: experimental changes (backtesting, new strategies).
+- **Documentation Updates**: Required when introducing architecture or contract changes.
+- **Push Policy**: Always ensure tests/build succeed before pushing.
+
+## Commit Examples
+```bash
+git commit -m "feat(marketData): enrich getE3Features with funding, open interest, realized volatility, spread"
+git commit -m "feat(e3): make strategy thresholds configurable via CONFIG"
+git commit -m "docs: update guides to reflect new architecture and thresholds"
+```
+
+## Tagging Examples
+```bash
+git tag -a v0.1.0 -m "First functional loop with LLM + audit logging"
+git tag -a v0.1.1 -m "Strategy thresholds configurable & enriched features integrated"
+git push origin main --follow-tags
+```
+
 This document defines the **Git workflow rules** for the trading automation system project. It ensures consistency, collaboration, and smooth integration with Cline as the coding assistant.
 
 ---

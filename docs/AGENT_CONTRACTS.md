@@ -1,5 +1,20 @@
 # Agent Contracts
 
+## Updates (v0.1.1)
+- **AgentContext** now includes enriched features:
+  - fundingRate
+  - openInterest
+  - realizedVol
+  - spreadBps
+- **AgentDecision** now logs:
+  - decision ("long" | "short" | "flat")
+  - confidence (0..1)
+  - AI prompt (text sent to LLM)
+  - Raw LLM response (audit trail)
+
+---
+
+
 This document specifies the precise interfaces and contracts for the master and specialized agents. It defines strict data types, inputs/outputs, and interaction patterns.
 
 ---

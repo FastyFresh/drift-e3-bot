@@ -1,5 +1,17 @@
 # Project Guide
 
+## Recent Updates (v0.1.1)
+- **LLM Integration**: `aiGate.ts` now connects directly to Ollama, logs prompt and raw response for auditability.
+- **Signal Enrichment**: `marketData.ts` now returns fundingRate, openInterest, realizedVol, spreadBps in addition to prior features.
+- **Strategy Logic**: `strategy/e3.ts` upgraded to use enriched features with profitability-focused rules.
+- **Thresholds Configurable**: All strategy thresholds (bodyOverAtr, volumeZ, premiumPct, realizedVol, spreadBps) are now tunable via `CONFIG.thresholds`.
+- **Audit Logging**: Decisions and LLM responses logged to DB for transparency.
+
+## Next Steps
+- Implement offline backtesting harness (`backtest.ts`) to replay historical data.
+- Tune thresholds systematically using logged trade outcomes.
+- Iteratively refine LLM prompts with enriched feature context.
+
 This guide is the **single source of truth** for the trading automation system project. It contains the project overview, goals, current status, workflow rules, and instructions for resuming context.
 
 ---
@@ -47,6 +59,6 @@ When starting a new development session:
 
 ## Next Steps
 
-- Continue planning system architecture.
-- Implement modular agent structure: master controller, strategy agents, risk agent, execution layer.
-- Align documentation and code evolution incrementally.
+- Implement **aiGate.ts**: integrate LLM-based decision agent with validation + fallback.
+- Implement **index.ts**: wire together main loop (500ms tick) with DB persistence, LLM decisions, and risk checks.
+- Validate with `npm run build && npm start`, confirm signals + trades persist in SQLite.
