@@ -1,17 +1,18 @@
 # Project Guide
 
-## Recent Updates (v0.1.2)
-- **LLM Integration**: `aiGate.ts` now connects directly to Ollama, logs prompt and raw response for auditability.
-- **Signal Enrichment**: `marketData.ts` now returns fundingRate, openInterest, realizedVol, spreadBps in addition to prior features.
-- **Strategy Logic**: `strategy/e3.ts` upgraded to use enriched features with profitability-focused rules.
-- **Thresholds Configurable**: All strategy thresholds (bodyOverAtr, volumeZ, premiumPct, realizedVol, spreadBps) are now tunable via `CONFIG.thresholds`.
-- **Audit Logging**: Decisions and LLM responses logged to DB for transparency.
-- **Backtest Data Layer**: Added `driftDataProvider.ts` to pull historical SOL-PERP trades + funding from Drift Labs’ S3 archives, cache locally, and aggregate into OHLCV candles for replay.
+## Recent Updates (v0.2.0)
+- **Engine Abstraction**: Added `engine.ts` as the single pipeline for live + backtest runs (features → strategy → AI → logging → executor).
+- **Unified Logging**: New `logger.ts` persists all events in JSONL under `/var/logs` for reproducibility.
+- **Threshold Config**: Moved all strategy thresholds to `config/thresholds.json` for optimization sweeps.
+- **Backtest Harness Upgrade**: `backtest.ts` now replays multi-year SOL-PERP data, calls `engine.runTick()`, simulates trades, and exports JSON results under `/var/backtests`.
+- **Metrics & Regimes**: Integrated `metrics.ts` and `regimes.ts` for performance attribution by Sharpe, drawdown, win rate, and per-regime PnL.
+- **Research Ready**: Full reproducible pipeline in place to run 2021–2025 historical sims, log JSON outputs, and prepare for visualization/optimization loops.
 
 ## Next Steps
-- Tune thresholds systematically using logged trade outcomes.
-- Iteratively refine LLM prompts with enriched feature context.
-- Run full historical backtests (2021–2025) with regime segmentation to assess performance in bull, bear, chop, and crash phases.
+- Add visualization (`visualize.ts`) for equity curves, regime overlays, and rolling performance metrics.
+- Implement optimizer (`optimize.ts`) to sweep thresholds and rank configs via Sharpe & drawdown constraints.
+- Benchmark AI confirmation layer vs pure E3 signals to quantify lift.
+- Transition from backtests to paper trading on Drift with active monitoring dashboards.
 
 This guide is the **single source of truth** for the trading automation system project. It contains the project overview, goals, current status, workflow rules, and instructions for resuming context.
 

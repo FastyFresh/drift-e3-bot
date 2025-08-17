@@ -1,8 +1,6 @@
 import { DriftDataProvider } from "./data/driftDataProvider";
-import { getE3Features } from "./marketData";
-import { e3Decision } from "./strategy/e3";
-import { askOllama } from "./aiGate";
-import { logSignal, logTrade } from "./db";
+import { runTick, AgentDecision } from "./engine";
+import { logEvent } from "./logger";
 import { classifyRegime } from "./regimes";
 import { calculateMetrics, Metrics } from "./metrics";
 
@@ -62,41 +60,42 @@ async function runBacktest(
 
   let state: PositionState = { side: "flat", entryPrice: 0, pnl: 0 };
   let metrics: Metrics = { trades: 0, wins: 0, losses: 0, pnl: 0, equityCurve: [] };
+  const equityCurve: { ts: number; equity: number }[] = [];
+  const trades: any[] = [];
 
   for (const snap of snapshots) {
-    const features = await getE3Features(snap);
-    const ruleSignal = await e3Decision(features);
-    let finalSignal = ruleSignal;
-
-    let aiResp;
-    if (withAi) {
-      aiResp = await askOllama(features);
-      // naive override if AI is confident
-      if (aiResp && aiResp.decision) {
-        finalSignal = aiResp.decision;
-      }
-    }
-
-    await logSignal({
-      features,
-      decision: ruleSignal,
-      aiDecision: aiResp,
+    const decision: AgentDecision = await runTick(snap, {
+      aiEnabled: withAi,
+      executor: async (d, s) => {
+        const tradeResult = simulateTrade(state, d.signal.toLowerCase(), s.candle.close);
+        if (tradeResult.executed) {
+          trades.push({ ts: s.candle.timestamp, side: d.signal, price: s.candle.close, pnl: state.pnl });
+          metrics.trades++;
+        }
+        metrics.pnl = state.pnl;
+        metrics.equityCurve.push(state.pnl);
+      },
     });
 
-    const tradeResult = simulateTrade(state, finalSignal, snap.candle.close);
-    if (tradeResult.executed) {
-      await logTrade({ decision: finalSignal, price: snap.candle.close });
-      metrics.trades++;
-    }
-    metrics.pnl = state.pnl;
-    metrics.equityCurve.push(state.pnl);
+    equityCurve.push({ ts: snap.candle.timestamp, equity: state.pnl });
 
     // regime classification for segmentation
-    classifyRegime(snap, features, metrics);
+    classifyRegime(snap, {}, metrics);
+
+    logEvent("backtest_decision", { snapshot: snap, decision });
   }
 
   const result = calculateMetrics(metrics);
-  console.log("Backtest full-period metrics:", result);
+  const summary = {
+    params: { market, startDate, endDate, withAi },
+    metrics: result,
+    equityCurve,
+    trades
+  };
+
+  console.log("Backtest summary:", summary);
+
+  return summary;
 }
 
 if (require.main === module) {
@@ -106,5 +105,13 @@ if (require.main === module) {
   const end = args[2] || "20230201";
   const withAi = args.includes("--with-ai");
 
-  runBacktest(market, start, end, withAi).catch(console.error);
+  runBacktest(market, start, end, withAi).then((res) => {
+    const fs = require("fs");
+    const path = require("path");
+    const outDir = path.join(process.cwd(), "var", "backtests");
+    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+    const outFile = path.join(outDir, `backtest-${Date.now()}.json`);
+    fs.writeFileSync(outFile, JSON.stringify(res, null, 2));
+    console.log("Exported backtest results to", outFile);
+  }).catch(console.error);
 }
