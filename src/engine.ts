@@ -1,6 +1,7 @@
 import { DriftSnapshot } from "./data/driftDataProvider";
 import { getE3Features } from "./marketData";
 import { e3Decision, E3Decision } from "./strategy/e3";
+import { fundingFadeDecision } from "./strategy/fundingFade";
 import { askOllama } from "./aiGate";
 import { logEvent } from "./logger";
 import { DriftClient, PerpMarketAccount } from "@drift-labs/sdk";
@@ -35,14 +36,19 @@ export async function runTick(
     spreadBps: Math.abs(snapshot.candle.close - snapshot.candle.open) / Math.max(1, snapshot.candle.close) * 10000
   };
 
-  // 2. E3 strategy decision
-  const baseDecision: E3Decision = e3Decision(features);
+  // 2. Strategy selection
+  const strategy = (global as any).CONFIG?.strategy || "E3";
+  let base: { trigger: boolean; side: "long" | "short" | "flat"; reasons: string[] };
+
+  if (strategy === "FundingFade") {
+    base = fundingFadeDecision(features);
+  } else {
+    base = e3Decision(features);
+  }
 
   let finalDecision: AgentDecision = {
-    signal: baseDecision.trigger
-      ? (baseDecision.side.toUpperCase() as "LONG" | "SHORT")
-      : "FLAT",
-    reasons: baseDecision.reasons,
+    signal: base.trigger ? (base.side.toUpperCase() as "LONG" | "SHORT") : "FLAT",
+    reasons: base.reasons,
   };
 
   // 3. Optional AI confirmation

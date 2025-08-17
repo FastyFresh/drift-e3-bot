@@ -53,7 +53,8 @@ export async function runBacktest(
   market: string,
   startDate: string,
   endDate: string,
-  withAi: boolean
+  withAi: boolean,
+  strategy: string = "E3"
 ) {
   const provider = new DriftDataProvider();
   const snapshots = await provider.load(market, startDate, endDate, "1m");
@@ -82,6 +83,9 @@ export async function runBacktest(
       },
     });
 
+    // inject strategy selection into CONFIG
+    (global as any).CONFIG = { ...(global as any).CONFIG, strategy };
+
     equityCurve.push({ ts: snap.candle.timestamp, equity: state.pnl });
 
     // regime classification for segmentation
@@ -92,7 +96,7 @@ export async function runBacktest(
 
   const result = computeMetrics(metrics);
   const summary = {
-    params: { market, startDate, endDate, withAi },
+    params: { market, startDate, endDate, withAi, strategy },
     metrics: result,
     equityCurve,
     trades
@@ -121,7 +125,11 @@ if (require.main === module) {
   const end = args[2] || "20230201";
   const withAi = args.includes("--with-ai");
 
-  runBacktest(market, start, end, withAi).then((res) => {
+  const strategy = args.find((a) => a.startsWith("--strategy="))
+    ? args.find((a) => a.startsWith("--strategy="))!.split("=")[1]
+    : "E3";
+
+  runBacktest(market, start, end, withAi, strategy).then((res) => {
     const fs = require("fs");
     const path = require("path");
     const outDir = path.join(process.cwd(), "var", "backtests");

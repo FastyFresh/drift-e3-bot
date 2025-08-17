@@ -1,15 +1,15 @@
 {
-  "markets": ["SOL-PERP"],
-  "startDate": "2023-01-01",
-  "endDate": "2023-01-31",
+  "market": "SOL-PERP",
+  "startDate": "20230101",
+  "endDate": "20230801",
+  "randomSamples": 150,
+  "maxDrawdown": 0.15,
   "params": {
-    "window": [5, 10, 20],
-    "threshold": [0.2, 0.5, 1.0],
-    "atrMultiplier": [1, 2],
-    "fundingThreshold": [0.0005, 0.001, 0.002],
-    "volumeZ": [0.5, 1, 2],
-    "obImbalance": [0.05, 0.1, 0.2]
-  },
-  "randomSamples": 0,
-  "maxDrawdown": 200
+    "bodyOverAtr": [0.5, 1.0, 1.5, 2.0],
+    "volumeZ": [1.0, 1.5, 2.0, 2.5],
+    "premiumPct": [0.001, 0.005, 0.01, 0.02],
+    "realizedVol": [0.5, 1.0, 2.0, 5.0],
+    "spreadBps": [10, 20, 30, 50],
+    "fundingRate": [0.00005, 0.0001, 0.0002, 0.0005]
+  }
 }
