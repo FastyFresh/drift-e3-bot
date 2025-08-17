@@ -1,16 +1,12 @@
 {
   "name": "drift-e3-bot",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.6.4",
   "license": "MIT",
-  "type": "commonjs",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
-    "lint": "echo \"(optional) add eslint later\"",
-    "backtest": "ts-node src/backtest.ts",
-    "plot": "ts-node src/visualize.ts"
+    "start": "ts-node --transpile-only src/index.ts",
+    "backtest": "ts-node --transpile-only src/backtest.ts",
+    "visualize": "ts-node --transpile-only src/visualize.ts",
+    "optimize": "ts-node --transpile-only src/optimize.ts"
   },
   "dependencies": {
     "@drift-labs/sdk": "^2.134.0",

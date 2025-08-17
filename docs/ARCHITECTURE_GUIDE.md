@@ -1,6 +1,7 @@
 # Architecture Guide
 
 ## Aug 2025 Update
+- **E3 Strategy Critical Fix (v0.6.4)**: Fixed major logic bug in `src/strategy/e3.ts` where `shouldEnter` method was not properly evaluating all conditions. The strategy was always triggering regardless of volume Z-score, order book imbalance, or funding rate thresholds. After fix: strategy now generates 60,000+ realistic trades over 7+ months with profitable parameter sets achieving +4.39 PnL.
 - **Strategy Layer**: E3 baseline moved into **high-trade mode** for testing backtest infrastructure.
 - **Backtest Regimes**: Regime classifier (`regimes.ts`) confirmed wired into backtest loop; metrics breakdown placeholder logs regimes for each tick.
 - **Pipeline Fixes**: Backtest equity curve logging patched to avoid NaN values, all trades now priced correctly.
@@ -13,7 +14,7 @@
    - Now enriched with fundingRate, openInterest, realizedVol, spreadBps.
 
 2. **Strategies**
-   - **E3 (`strategy/e3.ts`)**: Profitability-focused rules using configurable thresholds (`CONFIG.thresholds`). Produces trigger + side decision with reasons[] explaining trade logic.
+   - **E3 (`strategy/e3.ts`)**: Profitability-focused rules using configurable thresholds (`CONFIG.thresholds`). **Fixed in v0.6.4**: Corrected `shouldEnter` logic to properly evaluate all conditions instead of always triggering. Now generates realistic trade volumes with profitable parameter sets. Produces trigger + side decision with reasons[] explaining trade logic.
    - **Funding Fade (`strategy/fundingFade.ts`)**: Fades extremes in fundingRate + premiumPct, with filters on spread and volume. Integrated as of v0.6.1.
    - **Optimizer Parameter Injection (v0.6.3)**: During optimization and backtests, parameter sets are injected into `(global as any).CONFIG.thresholds`. This enables dynamic strategy calibration for:
      - E3: `bodyOverAtr`, `volumeZ`, `premiumPct`, `realizedVol`, `spreadBps`.

@@ -85,8 +85,8 @@ async function optimize() {
       // Run backtest with these thresholds (dates pulled from config)
       const startDate = (optConfig as any).startDate || "20230101";
       const endDate = (optConfig as any).endDate || "20240101";
-      // run withAi=true to enable signal generation
-      const summary = await runBacktest("SOL-PERP", startDate, endDate, true, strategy);
+      // run withAi=false to test parameter mapping without AI issues
+      const summary = await runBacktest("SOL-PERP", startDate, endDate, false, strategy);
       const metrics = summary.metrics;
 
       results.push({ params, metrics });

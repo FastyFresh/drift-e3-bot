@@ -17,7 +17,7 @@ interface Features {
 
 export function e3Decision(features: Features): E3Decision {
   const reasons: string[] = [];
-  let trigger = false;
+  let trigger = true; // Start with trigger = true, then apply filters
   let side: "long" | "short" | "flat" = "flat";
 
   // import dynamic thresholds
@@ -35,48 +35,61 @@ export function e3Decision(features: Features): E3Decision {
     spreadBps: 50
   };
 
-  // Momentum checks
+  // Momentum checks - FILTER OUT if conditions not met
   if (features.bodyOverAtr < thrBody) {
-    reasons.push(`bodyOverAtr<${thrBody}`);
+    reasons.push(`bodyOverAtr<${thrBody} (${features.bodyOverAtr.toFixed(3)})`);
+    trigger = false;
   }
   if (features.volumeZ < thrVol) {
-    reasons.push(`volumeZ<${thrVol}`);
+    reasons.push(`volumeZ<${thrVol} (${features.volumeZ.toFixed(3)})`);
+    trigger = false;
   }
 
-  // Premium & funding skew logic
-  if (features.premiumPct > 0) {
-    side = "short";
-    reasons.push("premium positive → short bias");
-  } else if (features.premiumPct < 0) {
-    side = "long";
-    reasons.push("premium negative → long bias");
-  }
-
-  // Orderbook imbalance fallback
-  if (side === "flat") {
-    if (features.obImbalance >= 0.5) {
-      side = "long";
-      reasons.push("obImbalance ≥ 0.5 → long");
-    } else {
-      side = "short";
-      reasons.push("obImbalance < 0.5 → short");
-    }
-  }
-
-  // Volatility regime filter
+  // Volatility regime filter - FILTER OUT if too volatile
   if (features.realizedVol > thrVolatility) {
-    reasons.push(`realizedVol > ${thrVolatility}`);
+    reasons.push(`realizedVol>${thrVolatility} (${features.realizedVol.toFixed(3)})`);
+    trigger = false;
   }
 
-  // Spread filter
+  // Spread filter - FILTER OUT if spread too wide
   if (features.spreadBps > thrSpread) {
-    reasons.push(`spread > ${thrSpread}`);
+    reasons.push(`spread>${thrSpread}bps (${features.spreadBps.toFixed(1)})`);
+    trigger = false;
   }
 
-  // Open interest check
+  // Open interest check - FILTER OUT if no liquidity
   if (features.openInterest <= 0) {
     reasons.push("openInterest non-positive");
+    trigger = false;
   }
 
-  return { trigger: true, side, reasons };
+  // Only determine side if all filters pass
+  if (trigger) {
+    // Premium & funding skew logic
+    if (features.premiumPct > 0) {
+      side = "short";
+      reasons.push(`premium positive (${(features.premiumPct * 100).toFixed(3)}%) → short bias`);
+    } else if (features.premiumPct < 0) {
+      side = "long";
+      reasons.push(`premium negative (${(features.premiumPct * 100).toFixed(3)}%) → long bias`);
+    }
+
+    // Orderbook imbalance fallback
+    if (side === "flat") {
+      if (features.obImbalance >= 0.5) {
+        side = "long";
+        reasons.push(`obImbalance ≥ 0.5 (${features.obImbalance.toFixed(3)}) → long`);
+      } else {
+        side = "short";
+        reasons.push(`obImbalance < 0.5 (${features.obImbalance.toFixed(3)}) → short`);
+      }
+    }
+
+    reasons.push("✅ All filters passed");
+  } else {
+    side = "flat";
+    reasons.push("❌ Filtered out");
+  }
+
+  return { trigger, side, reasons };
 }

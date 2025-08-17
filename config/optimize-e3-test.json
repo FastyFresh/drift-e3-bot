@@ -1,0 +1,14 @@
+{
+  "market": "SOL-PERP",
+  "startDate": "20230101",
+  "endDate": "20230201",
+  "randomSamples": 5,
+  "maxDrawdown": 0.15,
+  "params": {
+    "bodyOverAtr": [0.5, 1.0],
+    "volumeZ": [1.0, 2.0],
+    "premiumPct": [0.001, 0.01],
+    "realizedVol": [1.0, 2.0],
+    "spreadBps": [10, 30]
+  }
+}

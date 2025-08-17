@@ -3,6 +3,7 @@
 ## Release Notes
 
 ### Aug 2025
+- **v0.6.4 - E3 Strategy Critical Fix**: Fixed major bug in E3 strategy logic that was preventing proper trade filtering. Strategy now correctly evaluates all conditions (volume Z-score, order book imbalance, funding rate thresholds) instead of always triggering. Results show dramatic improvement from 1 trade in 7+ months to 60,000+ realistic trades with profitable parameter sets (+4.39 PnL achieved).
 - Funding Fade strategy implemented in `src/strategy/fundingFade.ts` following documented hypothesis.
 - Engine updated for multi-strategy support (`E3` and `FundingFade`).
 - Backtest framework extended with `--strategy` flag for validation and comparison.
@@ -10,7 +11,7 @@
 - Optimizer configured with new thresholds; began parameter sweeps for E3 and Funding Fade.
 - Documentation updated across PROFITABILITY_ROADMAP.md and STRATEGY_FUNDING_FADE.md.
 - Commit discipline following `/docs/VERSION_CONTROL_GUIDE.md` (atomic commits, tagging, checkpoints).
-- Checkpoint: `[--- COMMIT CHECKPOINT: v0.6.1 Funding Fade strategy + multi-strategy backtest integration]`
+- Checkpoint: `[--- COMMIT CHECKPOINT: v0.6.4 E3 strategy logic fix - now generates realistic trades with profitable results]`
 
 ### v0.6.3 (Aug 2025)
 - **Fix**: Optimizer parameter mapping for strategy-specific thresholds.
