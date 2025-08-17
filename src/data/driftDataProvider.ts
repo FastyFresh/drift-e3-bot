@@ -124,10 +124,16 @@ export class DriftDataProvider {
           "trade",
           date
         );
-        const tradeData = JSON.parse(fs.readFileSync(tradeFile, "utf8"));
+        const tradeData = this.safeParseFile(tradeFile);
+        console.log(
+          `[DriftDataProvider] ${market} ${date} trades=${tradeData.length}`
+        );
         const candles = this.aggregateTradesToCandles(
           tradeData,
           resolutionSec
+        );
+        console.log(
+          `[DriftDataProvider] ${market} ${date} candles=${candles.length}`
         );
 
         // attempt funding
@@ -138,10 +144,8 @@ export class DriftDataProvider {
             "fundingRate",
             date
           );
-          const fundingData = JSON.parse(
-            fs.readFileSync(fundingFile, "utf8")
-          );
-          fundingRate = fundingData.length
+          const fundingData = this.safeParseFile(fundingFile);
+          fundingRate = Array.isArray(fundingData) && fundingData.length
             ? fundingData[fundingData.length - 1].rate
             : undefined;
         } catch {
@@ -162,6 +166,97 @@ export class DriftDataProvider {
     return snapshots;
   }
 
+  private safeParseFile(filePath: string): any[] {
+    const raw = fs.readFileSync(filePath, "utf8").trim();
+    const objs: any[] = [];
+    let linesTotal = 0,
+      linesMalformed = 0,
+      linesSkipped = 0,
+      tradesAccepted = 0;
+
+    const accept = (obj: any) => {
+      linesTotal++;
+      const mapped = this.mapTrade(obj);
+      if (mapped) {
+        tradesAccepted++;
+        objs.push(mapped);
+        return true;
+      } else {
+        linesSkipped++;
+        return false;
+      }
+    };
+
+    // Try full JSON first
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        const filtered = parsed.filter(accept);
+        console.log(`[safeParseFile] ${path.basename(filePath)} parsed=${linesTotal} accepted=${tradesAccepted} skipped=${linesSkipped}`);
+        return filtered;
+      }
+      if (accept(parsed)) {
+        console.log(`[safeParseFile] ${path.basename(filePath)} single object accepted`);
+        return [parsed];
+      }
+    } catch {
+      // Fallback to JSONL line-by-line
+      const lines = raw.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+      for (const line of lines) {
+        try {
+          const obj = JSON.parse(line);
+          if (accept(obj)) objs.push(obj);
+        } catch {
+          linesMalformed++;
+        }
+      }
+    }
+    console.log(
+      `[safeParseFile] ${path.basename(filePath)} total=${linesTotal} accepted=${tradesAccepted} skipped=${linesSkipped} malformed=${linesMalformed}`
+    );
+    return objs;
+  }
+
+  private mapTrade(obj: any): any | null {
+    if (!obj || typeof obj !== "object") return null;
+
+    // Handle nested trade object formats from Drift archives
+    const trade = obj.price !== undefined ? obj : (obj.record || obj.trade || obj.data);
+    if (!trade || typeof trade !== "object") return null;
+
+    // Must have at least price
+    if (typeof trade.price !== "number") return null;
+
+    // Accept broader timestamp sources
+    const ts =
+      trade.ts ??
+      trade.blockTimestamp ??
+      (typeof trade.slot === "number" ? trade.slot * 400 : undefined) ??
+      trade.timestamp;
+
+    if (typeof ts !== "number" || !isFinite(ts)) {
+      return null;
+    }
+
+    // Skip explicit noise-only records, but tolerate unknown extra fields
+    if (trade.fillerReward !== undefined) return null;
+    if (trade.healthContribution !== undefined) return null;
+    if (typeof trade.error === "string") return null;
+
+    return {
+      price: trade.price,
+      ts,
+      baseAmount:
+        typeof trade.baseAmount === "number" && isFinite(trade.baseAmount)
+          ? trade.baseAmount
+          : 0,
+      side: trade.side ?? undefined,
+      maker: trade.maker ?? undefined,
+      taker: trade.taker ?? undefined,
+      slot: trade.slot ?? undefined,
+    };
+  }
+  
   private expandDates(start: string, end: string): string[] {
     const results: string[] = [];
     const sY = parseInt(start.substring(0, 4));

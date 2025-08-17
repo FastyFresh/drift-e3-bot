@@ -1,6 +1,14 @@
 # Project Guide
 
-## Recent Updates (v0.4.1a)
+## Release Notes
+
+### v0.4.2
+- **Fixed Ingestion Bug**: Relaxed filters in `safeParseFile` to accept trades with minimal required fields (`price` + timestamp). Optional fields are tolerated. Noise-only logs are skipped without halting ingestion.
+- **Diagnostics Added**: Structured logs for each day’s trades, candles, skipped, malformed counts.
+- **Optimizer Enhancements**: Exports configs with non-zero trades, metrics (Sharpe, Max Drawdown, Profit Factor), plus diagnostic summaries. Dates configurable via `config/optimize.json`.
+- **Checkpoint**: `[--- COMMIT CHECKPOINT: v0.4.2 data ingestion fix + diagnostics]`
+
+### v0.4.1a
 - **Robust Drift Data Provider**: Added `safeParseFile` to skip malformed lines (`fillerReward`) and ensure only valid trades are aggregated into candles.
 - **Optimizer Harness**: Runs with configurable dates from `config/optimize.json` and executes parameter sweeps.
 - **Known Issue**: Current runs return **0 trades** and empty equity curves due to overly strict ingestion or gaps in Drift historical JSON formatting. Requires debugging as next milestone.

@@ -77,6 +77,9 @@ Types:
   --- COMMIT CHECKPOINT:
   ```
   These mark approved stable points in the project evolution.
+- Examples:
+  - `[--- COMMIT CHECKPOINT: v0.4.1a optimizer harness + strict ingestion]`
+  - `[--- COMMIT CHECKPOINT: v0.4.2 data ingestion fix + diagnostics]`
 
 ---
 

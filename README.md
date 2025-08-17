@@ -1,57 +1,80 @@
-# Drift E3 Bot (Starter)
+# Drift E3 Bot
 
-Minimal, clean starter for a **SOL-PERP** bot on **Drift Protocol** with:
+A trading bot for **Drift Protocol** with backtesting and parameter optimization.  
+Current Version: **v0.4.2**
 
-- **E3 Momentum** rules (ATR breakout + volume z-score + orderbook imbalance + premium sanity)
-- **Ollama** local AI gate (e.g., `trade-signal-lora`) to confirm setups
-- Strict **risk**: position sizing by risk %, daily loss cap, circuit breaker
-- Helius RPC + Phantom wallet (Base58 private key) — **use .env, never commit secrets**
+---
+
+## Features
+- **Backtester** — Replays Drift historical trades and funding data to generate equity curves and performance metrics.
+- **Optimizer** — Runs parameter sweeps over strategies, ranks by Sharpe ratio and drawdown constraints.
+- **Diagnostics** — Logs parsed trades, candles, skipped lines for ingestion debugging.
+
+---
+
+## Requirements
+- Node.js v18+
+- TypeScript
+- `ts-node`
+
+---
 
 ## Quick Start
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/FastyFresh/drift-e3-bot.git
+   cd drift-e3-bot
+   ```
 
-```bash
-git clone <your-new-repo-url>
-cd drift-e3-bot
-cp .env.example .env  # fill values
-npm i
-npm run build
-npm start    # or: npm run dev
-```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-### Environment
+3. Run optimizer (example):
+   ```bash
+   npx ts-node src/optimize.ts
+   ```
 
-- `HELIUS_API_KEY` — from https://www.helius.dev
-- `WALLET_PRIVATE_KEY_BASE58` — Phantom private key in base58 (use a fresh trading wallet)
-- `DRIFT_ENV` — `mainnet-beta` (default)
-- `OLLAMA_HOST` — default `http://127.0.0.1:11434`
-- `OLLAMA_MODEL` — default `trade-signal-lora`
+4. Configurable ranges are set in `config/optimize.json`.  
+   Example:
+   ```json
+   {
+     "market": "SOL-PERP",
+     "startDate": "2023-01-01",
+     "endDate": "2023-01-14",
+     "parameters": {
+       "riskThresholds": [0.5, 1.0, 2.0]
+     }
+   }
+   ```
 
-## Files
+---
 
-- `src/index.ts` — main loop
-- `src/config.ts` — env parsing + defaults
-- `src/solana.ts` — connection + wallet
-- `src/drift.ts` — Drift client helper + place/flatten
-- `src/marketData.ts` — L2 snapshots, ATR/volume stats, premium sanity
-- `src/strategy/e3.ts` — E3 signal calculation
-- `src/aiGate.ts` — Ollama call for gating
-- `src/risk.ts` — sizing, daily caps, circuit breakers
+## Outputs
+- Results JSON exported to `/var/optimize/results_TIMESTAMP.json` containing:
+  - `tradesExecuted`
+  - `Sharpe`
+  - `MaxDrawdown`
+  - `ProfitFactor`
+  - Diagnostic summary: days parsed, skipped lines
 
-## Notes
+---
 
-- This is a **starter**; review and test thoroughly.
-- Defaults are conservative. Start small. Increase only after live results prove EV.
-- Paper mode can be simulated by setting `NOTIONAL_USD=0` (logs signals only).
+## Release Notes
 
+### v0.4.2
+- Fixed ingestion bug: relaxed filters in `safeParseFile`.
+- Added structured logs for trades, candles, skipped/malformed lines.
+- Optimizer results now include non-zero trades and metrics.
+- Docs synchronized to match backtester + optimizer improvements.
 
-## SQLite logging
+### v0.4.1a
+- Introduced `safeParseFile` with strict filters (caused zero trades bug).
+- Added architecture documentation.
 
-- Uses **better-sqlite3** for fast local logging.
-- DB path via `DB_PATH` (default `./var/trading.db`).
-- Tables: `signals`, `orders`, `pnl`.
-- Export to CSV quickly:
-```bash
-sqlite3 ./var/trading.db -header -csv "select * from signals" > signals.csv
-sqlite3 ./var/trading.db -header -csv "select * from orders" > orders.csv
-sqlite3 ./var/trading.db -header -csv "select * from pnl" > pnl.csv
-```
+---
+
+## References
+- Drift Protocol docs: [https://www.drift.trade](https://www.drift.trade)
+- Drift Historical Data S3: `https://drift-historical-data-v2.s3.eu-west-1.amazonaws.com/...`

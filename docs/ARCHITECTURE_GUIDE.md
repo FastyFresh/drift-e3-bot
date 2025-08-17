@@ -129,6 +129,12 @@ sequenceDiagram
   - `orders` (requests issued, status, txid)
   - `risk_checks` (results from validator)
 - Future: telemetry and metrics table
+- **Drift Data Provider (v0.4.2 update)**:
+  - Aggregates Drift S3 trade/funding data into candles.
+  - `safeParseFile` now accepts trades with minimal required fields (`price` + timestamp).
+  - Optional fields tolerated (`side`, `maker`, `taker`, etc.).
+  - Structured logs output counts per-file: parsed, accepted, skipped, malformed.
+  - Robust to malformed lines; skips noise-only entries gracefully.
 
 ---
 
