@@ -5,8 +5,14 @@
 ### Aug 2025
 - E3 strategy modified into **high-trade testing mode** to ensure backtest activity for validation.
 - Backtest pipeline fixed: removed NaN propagation, ensured all trades have valid prices and PnL.
-- Confirmed regime classifier is integrated into backtest loop (metrics breakdown placeholder).
-- Roadmap updated: visualization overlays, Funding & Premium Skew Fade strategy, AI-assisted long backtests.
+- Regime classifier fully implemented in `src/regimes.ts` with states: `bull_trend`, `bear_trend`, `crash`, `high_vol`, `chop`.
+- `metrics.ts` enhanced for **per-regime PnL, trades, win rate, Sharpe**.
+- `visualize.ts` extended with **regime overlays** (shaded bands on equity vs trades chart).
+- Added npm scripts: `backtest` (`ts-node src/backtest.ts`) and `plot` (`ts-node src/visualize.ts`).
+- Pipeline verified with sample backtest run, results exporting to `/var/backtests`.
+- Roadmap updated: prepare for long-range backtest (Jan 2023–Aug 2025) and AI‑guided optimization.
+- Commit discipline following `/docs/VERSION_CONTROL_GUIDE.md` (atomic commits, tagging, checkpoints).
+- Checkpoint: `[--- COMMIT CHECKPOINT: v0.5.0 regime-aware diagnostics + visualization integration]`
 
 
 ### v0.4.2

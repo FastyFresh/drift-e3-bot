@@ -1,0 +1,15 @@
+npm verbose cli /Users/rickrichman/.nvm/versions/node/v20.18.1/bin/node /Users/rickrichman/.nvm/versions/node/v20.18.1/bin/npm
+npm info using npm@10.8.2
+npm info using node@v20.18.1
+npm verbose title npm install
+npm verbose argv "install" "--loglevel" "verbose"
+npm verbose logfile logs-max:10 dir:/Users/rickrichman/.npm/_logs/2025-08-16T22_18_45_960Z-
+npm verbose logfile /Users/rickrichman/.npm/_logs/2025-08-16T22_18_45_960Z-debug-0.log
+npm verbose shrinkwrap failed to load node_modules/.package-lock.json out of date, updated: node_modules
+npm http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 199ms
+npm verbose cwd /Users/rickrichman/Desktop/drift-e3-bot
+npm verbose os Darwin 24.5.0
+npm verbose node v20.18.1
+npm verbose npm  v10.8.2
+npm verbose exit 0
+npm info ok
