@@ -1,19 +1,19 @@
 # Project Guide
 
-## Recent Updates (v0.3.0)
-- **Visualization Module**: Added `visualize.ts` to generate interactive Plotly equity curves and trade overlays, saved under `/var/plots`.
-- **Engine Abstraction**: Added `engine.ts` as the single pipeline for live + backtest runs (features → strategy → AI → logging → executor).
-- **Unified Logging**: New `logger.ts` persists all events in JSONL under `/var/logs` for reproducibility.
-- **Threshold Config**: Moved all strategy thresholds to `config/thresholds.json` for optimization sweeps.
-- **Backtest Harness Upgrade**: `backtest.ts` now replays multi-year SOL-PERP data, calls `engine.runTick()`, simulates trades, and exports JSON results under `/var/backtests`.
-- **Metrics & Regimes**: Integrated `metrics.ts` and `regimes.ts` for performance attribution by Sharpe, drawdown, win rate, and per-regime PnL.
-- **Research Ready**: Full reproducible pipeline in place to run 2021–2025 historical sims, log JSON outputs, visualize performance, and prepare for optimization loops.
+## Recent Updates (v0.4.0)
+- **Optimizer Harness**: Implemented `optimize.ts` to sweep parameter grids/random samples, run multi‑year backtests, and rank configs by Sharpe subject to max drawdown. Exports JSON results under `/var/optimize`.
+- **Backtest Integration**: `backtest.ts` refactored to export `runBacktest` for programmatic calls by the optimizer.
+- **Metrics Update**: Standardized around `computeMetrics` and `MetricsResult` in `metrics.ts`.
+- **Logger Module**: New `logger.ts` provides unified JSONL logging, also leveraged for optimization runs.
+- **Config Enhancements**: `config.ts` now exposes dynamic `thresholds` object, allowing optimizer sweeps to patch strategy values.
+- **Visualization Module**: Retained from v0.3.0 — interactive Plotly equity curves and trade overlays saved under `/var/plots`.
+- **Research Ready**: Pipeline supports systematic optimization, reproducible logs, and visualization for parameter/performance analysis.
 
 ## Next Steps
-- Add visualization (`visualize.ts`) for equity curves, regime overlays, and rolling performance metrics.
-- Implement optimizer (`optimize.ts`) to sweep thresholds and rank configs via Sharpe & drawdown constraints.
+- Extend visualization with regime overlays and rolling performance metrics.
 - Benchmark AI confirmation layer vs pure E3 signals to quantify lift.
-- Transition from backtests to paper trading on Drift with active monitoring dashboards.
+- Integrate live execution with Drift smart contracts, enforcing risk limits (no paper trading layer).
+- Automate rolling optimizer runs to keep thresholds adaptive over time.
 
 This guide is the **single source of truth** for the trading automation system project. It contains the project overview, goals, current status, workflow rules, and instructions for resuming context.
 
