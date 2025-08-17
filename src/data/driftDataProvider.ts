@@ -200,14 +200,35 @@ export class DriftDataProvider {
         return [parsed];
       }
     } catch {
-      // Fallback to JSONL line-by-line
+      // Fallback to JSONL or CSV
       const lines = raw.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
-      for (const line of lines) {
-        try {
-          const obj = JSON.parse(line);
+      if (lines.length > 0 && lines[0].includes(",")) {
+        // CSV mode
+        const headers = lines[0].split(",");
+        for (let i = 1; i < lines.length; i++) {
+          const tokens = lines[i].split(",");
+          if (tokens.length !== headers.length) {
+            linesMalformed++;
+            continue;
+          }
+          const obj: any = {};
+          headers.forEach((h, idx) => {
+            const key = h.trim();
+            const val = tokens[idx];
+            const num = Number(val);
+            obj[key] = isNaN(num) ? val : num;
+          });
           if (accept(obj)) objs.push(obj);
-        } catch {
-          linesMalformed++;
+        }
+      } else {
+        // JSONL line-by-line mode
+        for (const line of lines) {
+          try {
+            const obj = JSON.parse(line);
+            if (accept(obj)) objs.push(obj);
+          } catch {
+            linesMalformed++;
+          }
         }
       }
     }
@@ -217,6 +238,24 @@ export class DriftDataProvider {
     return objs;
   }
 
+  /**
+   * Normalize a raw trade object from Drift archives into a minimal format
+   * usable by the backtester.
+   *
+   * Standardized Trade object:
+   * {
+   *   price: number,        // execution price
+   *   ts: number,           // timestamp in seconds (epoch)
+   *   baseAmount: number,   // trade size (may be 0 if missing)
+   *   side?: string,        // optional: "buy" | "sell" | etc., passthrough from archive
+   *   maker?: string,       // optional identity fields
+   *   taker?: string,
+   *   slot?: number         // optional drift-specific slot (block approx)
+   * }
+   *
+   * Input records may have multiple shapes (nested under "record", "trade", or "data").
+   * Any extra fields are ignored but tolerated for forward compatibility.
+   */
   private mapTrade(obj: any): any | null {
     if (!obj || typeof obj !== "object") return null;
 
@@ -225,26 +264,26 @@ export class DriftDataProvider {
     if (!trade || typeof trade !== "object") return null;
 
     // Must have at least price
-    if (typeof trade.price !== "number") return null;
+    if (typeof trade.price !== "number" || !isFinite(trade.price)) return null;
 
-    // Accept broader timestamp sources
-    const ts =
+    // Accept broader timestamp sources and coerce to number if string
+    let ts: any =
       trade.ts ??
       trade.blockTimestamp ??
       (typeof trade.slot === "number" ? trade.slot * 400 : undefined) ??
       trade.timestamp;
 
+    if (typeof ts === "string") {
+      const num = Number(ts);
+      if (!isNaN(num)) ts = num;
+    }
     if (typeof ts !== "number" || !isFinite(ts)) {
       return null;
     }
 
-    // Skip explicit noise-only records, but tolerate unknown extra fields
-    if (trade.fillerReward !== undefined) return null;
-    if (trade.healthContribution !== undefined) return null;
-    if (typeof trade.error === "string") return null;
-
+    // Instead of skipping on extra fields, just ignore them
     return {
-      price: trade.price,
+      price: Number(trade.price),
       ts,
       baseAmount:
         typeof trade.baseAmount === "number" && isFinite(trade.baseAmount)
@@ -253,7 +292,7 @@ export class DriftDataProvider {
       side: trade.side ?? undefined,
       maker: trade.maker ?? undefined,
       taker: trade.taker ?? undefined,
-      slot: trade.slot ?? undefined,
+      slot: typeof trade.slot === "number" ? trade.slot : undefined,
     };
   }
   
