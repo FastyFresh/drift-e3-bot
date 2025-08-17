@@ -51,6 +51,7 @@ This document defines the **Git workflow rules** for the trading automation syst
   - `feat(strategy): add moving average crossover`
   - `fix(db): resolve migration bug`
   - `docs: update project guide`
+  - `docs: update v0.4.2 ingestion fix testing & optimizer runs`
 
 Types:
 - **feat**: New feature
@@ -80,6 +81,7 @@ Types:
 - Examples:
   - `[--- COMMIT CHECKPOINT: v0.4.1a optimizer harness + strict ingestion]`
   - `[--- COMMIT CHECKPOINT: v0.4.2 data ingestion fix + diagnostics]`
+  - `[--- COMMIT CHECKPOINT: v0.4.2 test optimizer run Jan 2023 range (no trades, ingestion validated)]`
 
 ---
 

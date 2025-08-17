@@ -1,0 +1,15 @@
+{
+  "markets": ["SOL-PERP"],
+  "startDate": "2023-01-01",
+  "endDate": "2023-01-15",
+  "params": {
+    "window": [5, 10, 20],
+    "threshold": [0.5, 1.0],
+    "atrMultiplier": [1, 2],
+    "fundingThreshold": [0.001],
+    "volumeZ": [1],
+    "obImbalance": [0.1]
+  },
+  "randomSamples": 0,
+  "maxDrawdown": 200
+}
