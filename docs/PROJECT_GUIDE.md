@@ -1,11 +1,12 @@
 # Project Guide
 
-## Recent Updates (v0.1.1)
+## Recent Updates (v0.1.2)
 - **LLM Integration**: `aiGate.ts` now connects directly to Ollama, logs prompt and raw response for auditability.
 - **Signal Enrichment**: `marketData.ts` now returns fundingRate, openInterest, realizedVol, spreadBps in addition to prior features.
 - **Strategy Logic**: `strategy/e3.ts` upgraded to use enriched features with profitability-focused rules.
 - **Thresholds Configurable**: All strategy thresholds (bodyOverAtr, volumeZ, premiumPct, realizedVol, spreadBps) are now tunable via `CONFIG.thresholds`.
 - **Audit Logging**: Decisions and LLM responses logged to DB for transparency.
+- **Backtest Data Layer**: Added `driftDataProvider.ts` to pull historical SOL-PERP trades + funding from Drift Labs’ S3 archives, cache locally, and aggregate into OHLCV candles for replay.
 
 ## Next Steps
 - Implement offline backtesting harness (`backtest.ts`) to replay historical data.

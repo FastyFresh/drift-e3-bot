@@ -1,32 +1,91 @@
-import { E3Features } from '../marketData';
-
-export type E3Decision = {
+export interface E3Decision {
   trigger: boolean;
-  side: 'long' | 'short' | 'flat';
+  side: "long" | "short" | "flat";
   reasons: string[];
-};
+}
 
-export function e3Decision(features: E3Features): E3Decision {
+interface Features {
+  bodyOverAtr: number;
+  volumeZ: number;
+  obImbalance: number;
+  premiumPct: number;
+  fundingRate: number;
+  openInterest: number;
+  realizedVol: number;
+  spreadBps: number;
+}
+
+export function e3Decision(features: Features): E3Decision {
   const reasons: string[] = [];
-  const { bodyOverAtr, volumeZ, obImbalance, premiumPct } = features;
+  let trigger = true;
+  let side: "long" | "short" | "flat" = "flat";
 
-  const breakout = bodyOverAtr >= 1.0; // k1
-  if (breakout) reasons.push(`breakout bodyOverAtr=${bodyOverAtr.toFixed(2)}`);
+  // import dynamic thresholds
+  const {
+    bodyOverAtr: thrBody,
+    volumeZ: thrVol,
+    premiumPct: thrPremium,
+    realizedVol: thrVolatility,
+    spreadBps: thrSpread
+  } = (global as any).CONFIG?.thresholds || {
+    bodyOverAtr: 1.0,
+    volumeZ: 1.5,
+    premiumPct: 0.5,
+    realizedVol: 2.0,
+    spreadBps: 20
+  };
 
-  const volOk = volumeZ >= 1.5; // k2
-  if (volOk) reasons.push(`volumeZ=${volumeZ.toFixed(2)}`);
-
-  const obOk = obImbalance >= 0.6 || obImbalance <= 0.4;
-  if (obOk) reasons.push(`obImbalance=${obImbalance.toFixed(2)}`);
-
-  const premiumOk = Math.abs(premiumPct) <= 0.15;
-  if (premiumOk) reasons.push(`premiumOk=${premiumPct.toFixed(3)}%`);
-
-  const trigger = breakout && volOk && obOk && premiumOk;
-
-  let side: 'long'|'short'|'flat' = 'flat';
-  if (trigger) {
-    side = obImbalance >= 0.6 ? 'long' : 'short';
+  // Momentum checks
+  if (features.bodyOverAtr < thrBody) {
+    trigger = false;
+    reasons.push(`bodyOverAtr<${thrBody}`);
   }
+  if (features.volumeZ < thrVol) {
+    trigger = false;
+    reasons.push(`volumeZ<${thrVol}`);
+  }
+
+  // Premium & funding skew logic
+  if (features.premiumPct > thrPremium && features.fundingRate > 0) {
+    side = "short";
+    reasons.push("premium high + funding positive → short bias");
+  } else if (features.premiumPct < -thrPremium && features.fundingRate < 0) {
+    side = "long";
+    reasons.push("premium low + funding negative → long bias");
+  }
+
+  // Orderbook imbalance fallback if no clear premium/funding skew
+  if (side === "flat") {
+    if (features.obImbalance >= 0.6) {
+      side = "long";
+      reasons.push("obImbalance ≥ 0.6 → long");
+    } else if (features.obImbalance <= 0.4) {
+      side = "short";
+      reasons.push("obImbalance ≤ 0.4 → short");
+    } else {
+      side = "flat";
+      trigger = false;
+      reasons.push("obImbalance neutral");
+    }
+  }
+
+  // Volatility regime filter
+  if (features.realizedVol > thrVolatility) {
+    trigger = false;
+    reasons.push(`realizedVol > ${thrVolatility}`);
+  }
+
+  // Spread filter
+  if (features.spreadBps > thrSpread) {
+    trigger = false;
+    reasons.push(`spread > ${thrSpread}`);
+  }
+
+  // Open interest check (must be >0, otherwise no flow confirmation)
+  if (features.openInterest <= 0) {
+    trigger = false;
+    reasons.push("openInterest non-positive");
+  }
+
   return { trigger, side, reasons };
 }

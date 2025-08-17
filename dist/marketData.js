@@ -2,41 +2,62 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getE3Features = getE3Features;
 const drift_1 = require("./drift");
-let lastPrice = null;
-let lastVols = [];
-async function getE3Features(drift, market) {
-    const mid = await (0, drift_1.getPerpMidPrice)(drift, market);
-    const oracle = await (0, drift_1.getOraclePrice)(drift, market);
-    const premiumPct = (mid - oracle) / oracle * 100;
-    const prev = lastPrice ?? mid;
-    const body = Math.abs(mid - prev);
-    lastPrice = mid;
-    const window = 20;
-    if (lastVols.length >= window) {
-        lastVols.pop();
-    }
-    lastVols.unshift(1.0);
-    const meanVol = lastVols.reduce((a, b) => a + b, 0) / lastVols.length;
-    const volZ = (1.0 - meanVol) / Math.max(1e-9, stddev(lastVols));
-    const atrProxy = rollingAtrProxy(body);
-    const bodyOverAtr = atrProxy > 0 ? body / atrProxy : 0.0;
-    const obImbalance = 0.5; // placeholder; wire L2 depth later
-    return { bodyOverAtr, volumeZ: isFinite(volZ) ? Math.abs(volZ) : 0, obImbalance, premiumPct };
+const atrWindow = [];
+const volWindow = [];
+const maxWindow = 14;
+function rollingPush(arr, val, window) {
+    arr.push(val);
+    if (arr.length > window)
+        arr.shift();
 }
-let atrSeries = [];
-function rollingAtrProxy(newBody) {
-    const n = 14;
-    atrSeries.unshift(newBody);
-    if (atrSeries.length > n) {
-        atrSeries.pop();
-    }
-    const mean = atrSeries.reduce((a, b) => a + b, 0) / atrSeries.length;
-    return mean;
-}
-function stddev(arr) {
-    if (arr.length < 2)
+// simple ATR proxy from price deltas
+function computeBodyOverAtr(mid) {
+    if (atrWindow.length === 0) {
+        atrWindow.push(mid);
         return 0;
-    const m = arr.reduce((a, b) => a + b, 0) / arr.length;
-    const v = arr.reduce((a, b) => a + (b - m) * (b - m), 0) / arr.length;
-    return Math.sqrt(v);
+    }
+    const prev = atrWindow[atrWindow.length - 1];
+    const delta = Math.abs(mid - prev);
+    rollingPush(atrWindow, mid, maxWindow);
+    const avg = atrWindow.length > 1
+        ? atrWindow
+            .slice(1)
+            .map((p, i) => Math.abs(p - atrWindow[i]))
+            .reduce((a, b) => a + b, 0) / (atrWindow.length - 1)
+        : 0.0001;
+    const body = delta;
+    return avg ? body / avg : 0;
+}
+function computeVolumeZ(dummyVol = 1.0) {
+    rollingPush(volWindow, dummyVol, maxWindow);
+    if (volWindow.length < 2)
+        return 0;
+    const mean = volWindow.reduce((a, b) => a + b, 0) / volWindow.length;
+    const std = Math.sqrt(volWindow.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0) / volWindow.length);
+    return std ? (dummyVol - mean) / std : 0;
+}
+async function getE3Features(drift, market) {
+    try {
+        const mid = await (0, drift_1.getPerpMidPrice)(drift, market);
+        const oracle = await (0, drift_1.getOraclePrice)(drift, market);
+        const bodyOverAtr = computeBodyOverAtr(mid);
+        const volumeZ = computeVolumeZ();
+        const obImbalance = 0.5; // placeholder
+        const premiumPct = oracle ? ((mid - oracle) / oracle) * 100 : 0;
+        return {
+            bodyOverAtr: isFinite(bodyOverAtr) ? bodyOverAtr : 0,
+            volumeZ: isFinite(volumeZ) ? volumeZ : 0,
+            obImbalance: isFinite(obImbalance) ? obImbalance : 0.5,
+            premiumPct: isFinite(premiumPct) ? premiumPct : 0,
+        };
+    }
+    catch (e) {
+        console.error("getE3Features error:", e);
+        return {
+            bodyOverAtr: 0,
+            volumeZ: 0,
+            obImbalance: 0.5,
+            premiumPct: 0,
+        };
+    }
 }
