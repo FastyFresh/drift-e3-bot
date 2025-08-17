@@ -1,14 +1,15 @@
 # Project Guide
 
-## Recent Updates (v0.4.1)
+## Recent Updates (v0.4.1a)
 - **Robust Drift Data Provider**: Added `safeParseFile` to skip malformed lines (`fillerReward`) and ensure only valid trades are aggregated into candles.
-- **Optimizer Improvements**: Start/end dates configurable in `config/optimize.json`. Sweeps now run on validated datasets without crashing.
+- **Optimizer Harness**: Runs with configurable dates from `config/optimize.json` and executes parameter sweeps.
+- **Known Issue**: Current runs return **0 trades** and empty equity curves due to overly strict ingestion or gaps in Drift historical JSON formatting. Requires debugging as next milestone.
 - **Backtest Integration**: `backtest.ts` refactored to export `runBacktest` for programmatic calls by the optimizer.
 - **Metrics Update**: Standardized around `computeMetrics` and `MetricsResult` in `metrics.ts`.
 - **Logger Module**: New `logger.ts` provides unified JSONL logging, also leveraged for optimization runs.
 - **Config Enhancements**: `config.ts` now exposes dynamic `thresholds` object, allowing optimizer sweeps to patch strategy values.
 - **Visualization Module**: Interactive Plotly equity curves and trade overlays saved under `/var/plots`.
-- **Research Ready**: Pipeline supports systematic optimization, reproducible logs, visualization, and is now prepared for regime‑aware sweeps.
+- **Research Ready**: Pipeline is structurally correct and logs consistently, but requires ingestion fix for full optimizer utility.
 
 ## Next Steps
 - Extend visualization with regime overlays and rolling performance metrics.
