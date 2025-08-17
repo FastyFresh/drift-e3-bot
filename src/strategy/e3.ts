@@ -28,11 +28,11 @@ export function e3Decision(features: Features): E3Decision {
     realizedVol: thrVolatility,
     spreadBps: thrSpread
   } = (global as any).CONFIG?.thresholds || {
-    bodyOverAtr: 0.01,
-    volumeZ: 0.1,
-    premiumPct: 0.01,
-    realizedVol: 99.0,
-    spreadBps: 9999
+    bodyOverAtr: 1.0,
+    volumeZ: 1.0,
+    premiumPct: 0.005,
+    realizedVol: 5.0,
+    spreadBps: 50
   };
 
   // Momentum checks

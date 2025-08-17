@@ -12,6 +12,14 @@
 - Commit discipline following `/docs/VERSION_CONTROL_GUIDE.md` (atomic commits, tagging, checkpoints).
 - Checkpoint: `[--- COMMIT CHECKPOINT: v0.6.1 Funding Fade strategy + multi-strategy backtest integration]`
 
+### v0.6.3 (Aug 2025)
+- **Fix**: Optimizer parameter mapping for strategy-specific thresholds.
+- Updated `src/optimize.ts` to inject thresholds into `(global as any).CONFIG`.
+- E3 strategy now receives `bodyOverAtr`, `volumeZ`, `premiumPct`, `realizedVol`, `spreadBps`.
+- Funding Fade strategy now receives `fundingRate`, `premiumPct`, `spreadBps`, `volumeZ`.
+- Resolved 0-trade optimization result issue.
+- Checkpoint: `[--- COMMIT CHECKPOINT: v0.6.3 Optimizer parameter mapping fixed]`
+
 
 ### v0.4.2
 - **Fixed Ingestion Bug**: Relaxed filters in `safeParseFile` to accept trades with minimal required fields (`price` + timestamp). Optional fields are tolerated. Noise-only logs are skipped without halting ingestion.

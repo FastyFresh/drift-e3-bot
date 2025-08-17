@@ -55,8 +55,17 @@ function generateParameterSets(config: OptimizeConfig): Record<string, number>[]
 }
 
 async function optimize() {
-  // Load configuration from config/optimize.json
-  const cfgPath = path.resolve("config/optimize.json");
+  // Choose config file based on --strategy flag
+  const args = process.argv.slice(2);
+  const strategyArg = args.find((a) => a.startsWith("--strategy="));
+  const strategy = strategyArg ? strategyArg.split("=")[1] : "E3";
+
+  const configFile =
+    strategy.toLowerCase() === "fundingfade"
+      ? "config/optimize-fundingfade.json"
+      : "config/optimize-e3.json";
+
+  const cfgPath = path.resolve(configFile);
   const raw = fs.readFileSync(cfgPath, "utf-8");
   const optConfig: OptimizeConfig = JSON.parse(raw);
 
@@ -70,13 +79,14 @@ async function optimize() {
       logger.info({ msg: "Running optimization trial", params });
 
       // Patch thresholds dynamically
-      Object.assign(thresholds, params);
+      (global as any).CONFIG = { thresholds: { ...params } };
+      Object.assign(thresholds, params); // keep backwards compatibility
 
       // Run backtest with these thresholds (dates pulled from config)
       const startDate = (optConfig as any).startDate || "20230101";
       const endDate = (optConfig as any).endDate || "20240101";
       // run withAi=true to enable signal generation
-      const summary = await runBacktest("SOL-PERP", startDate, endDate, true);
+      const summary = await runBacktest("SOL-PERP", startDate, endDate, true, strategy);
       const metrics = summary.metrics;
 
       results.push({ params, metrics });

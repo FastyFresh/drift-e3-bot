@@ -15,6 +15,10 @@
 2. **Strategies**
    - **E3 (`strategy/e3.ts`)**: Profitability-focused rules using configurable thresholds (`CONFIG.thresholds`). Produces trigger + side decision with reasons[] explaining trade logic.
    - **Funding Fade (`strategy/fundingFade.ts`)**: Fades extremes in fundingRate + premiumPct, with filters on spread and volume. Integrated as of v0.6.1.
+   - **Optimizer Parameter Injection (v0.6.3)**: During optimization and backtests, parameter sets are injected into `(global as any).CONFIG.thresholds`. This enables dynamic strategy calibration for:
+     - E3: `bodyOverAtr`, `volumeZ`, `premiumPct`, `realizedVol`, `spreadBps`.
+     - Funding Fade: `fundingRate`, `premiumPct`, `spreadBps`, `volumeZ`.
+     - Backwards compatibility maintained via `thresholds` object in `config.ts`.
 
 3. **AI Layer (`aiGate.ts`)**
    - Sends enriched feature context to Ollama LLM.
