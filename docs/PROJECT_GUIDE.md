@@ -1,18 +1,20 @@
 # Project Guide
 
-## Recent Updates (v0.4.0)
-- **Optimizer Harness**: Implemented `optimize.ts` to sweep parameter grids/random samples, run multi‑year backtests, and rank configs by Sharpe subject to max drawdown. Exports JSON results under `/var/optimize`.
+## Recent Updates (v0.4.1)
+- **Robust Drift Data Provider**: Added `safeParseFile` to skip malformed lines (`fillerReward`) and ensure only valid trades are aggregated into candles.
+- **Optimizer Improvements**: Start/end dates configurable in `config/optimize.json`. Sweeps now run on validated datasets without crashing.
 - **Backtest Integration**: `backtest.ts` refactored to export `runBacktest` for programmatic calls by the optimizer.
 - **Metrics Update**: Standardized around `computeMetrics` and `MetricsResult` in `metrics.ts`.
 - **Logger Module**: New `logger.ts` provides unified JSONL logging, also leveraged for optimization runs.
 - **Config Enhancements**: `config.ts` now exposes dynamic `thresholds` object, allowing optimizer sweeps to patch strategy values.
-- **Visualization Module**: Retained from v0.3.0 — interactive Plotly equity curves and trade overlays saved under `/var/plots`.
-- **Research Ready**: Pipeline supports systematic optimization, reproducible logs, and visualization for parameter/performance analysis.
+- **Visualization Module**: Interactive Plotly equity curves and trade overlays saved under `/var/plots`.
+- **Research Ready**: Pipeline supports systematic optimization, reproducible logs, visualization, and is now prepared for regime‑aware sweeps.
 
 ## Next Steps
 - Extend visualization with regime overlays and rolling performance metrics.
-- Benchmark AI confirmation layer vs pure E3 signals to quantify lift.
+- Benchmark AI confirmation layer vs pure E3 signals by regime to quantify lift.
 - Integrate live execution with Drift smart contracts, enforcing risk limits (no paper trading layer).
+- Add regime‑segmented optimization: configs must hold Sharpe > 1 in bull, chop, bear.
 - Automate rolling optimizer runs to keep thresholds adaptive over time.
 
 This guide is the **single source of truth** for the trading automation system project. It contains the project overview, goals, current status, workflow rules, and instructions for resuming context.
