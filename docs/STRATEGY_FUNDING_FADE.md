@@ -57,6 +57,6 @@ Perpetual futures markets embed *funding rates* and *premium percentage dislocat
 ## Status
 - [x] Hypothesis defined  
 - [x] Document created  
-- [ ] Implementation (`strategy/fundingFade.ts`)  
-- [ ] Backtest validation vs baseline  
+- [x] Implementation (`strategy/fundingFade.ts`)  
+- [x] Backtest validation vs baseline  
 - [ ] Regime segmented robustness evaluation

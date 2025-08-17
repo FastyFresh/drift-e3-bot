@@ -12,9 +12,9 @@
    - Extracts features: bodyOverAtr, volumeZ, obImbalance, premiumPct.
    - Now enriched with fundingRate, openInterest, realizedVol, spreadBps.
 
-2. **Baseline Strategy (`strategy/e3.ts`)**
-   - Applies profitability-focused rules using configurable thresholds (`CONFIG.thresholds`).
-   - Produces trigger + side decision with reasons[] explaining trade logic.
+2. **Strategies**
+   - **E3 (`strategy/e3.ts`)**: Profitability-focused rules using configurable thresholds (`CONFIG.thresholds`). Produces trigger + side decision with reasons[] explaining trade logic.
+   - **Funding Fade (`strategy/fundingFade.ts`)**: Fades extremes in fundingRate + premiumPct, with filters on spread and volume. Integrated as of v0.6.1.
 
 3. **AI Layer (`aiGate.ts`)**
    - Sends enriched feature context to Ollama LLM.
@@ -55,7 +55,8 @@ flowchart LR
 
     subgraph StrategyAgents
       S1[E3 Strategy]
-      S2[AI Gate Strategy]
+      S2[Funding Fade Strategy]
+      S3[AI Gate Strategy]
     end
 
     subgraph RiskAgent

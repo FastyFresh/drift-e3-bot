@@ -3,16 +3,14 @@
 ## Release Notes
 
 ### Aug 2025
-- E3 strategy modified into **high-trade testing mode** to ensure backtest activity for validation.
-- Backtest pipeline fixed: removed NaN propagation, ensured all trades have valid prices and PnL.
-- Regime classifier fully implemented in `src/regimes.ts` with states: `bull_trend`, `bear_trend`, `crash`, `high_vol`, `chop`.
-- `metrics.ts` enhanced for **per-regime PnL, trades, win rate, Sharpe**.
-- `visualize.ts` extended with **regime overlays** (shaded bands on equity vs trades chart).
-- Added npm scripts: `backtest` (`ts-node src/backtest.ts`) and `plot` (`ts-node src/visualize.ts`).
-- Pipeline verified with sample backtest run, results exporting to `/var/backtests`.
-- Roadmap updated: prepare for long-range backtest (Jan 2023–Aug 2025) and AI‑guided optimization.
+- Funding Fade strategy implemented in `src/strategy/fundingFade.ts` following documented hypothesis.
+- Engine updated for multi-strategy support (`E3` and `FundingFade`).
+- Backtest framework extended with `--strategy` flag for validation and comparison.
+- Ran Funding Fade validation backtest (Dec 2022 – Mar 2023).
+- Optimizer configured with new thresholds; began parameter sweeps for E3 and Funding Fade.
+- Documentation updated across PROFITABILITY_ROADMAP.md and STRATEGY_FUNDING_FADE.md.
 - Commit discipline following `/docs/VERSION_CONTROL_GUIDE.md` (atomic commits, tagging, checkpoints).
-- Checkpoint: `[--- COMMIT CHECKPOINT: v0.5.0 regime-aware diagnostics + visualization integration]`
+- Checkpoint: `[--- COMMIT CHECKPOINT: v0.6.1 Funding Fade strategy + multi-strategy backtest integration]`
 
 
 ### v0.4.2
