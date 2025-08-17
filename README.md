@@ -1,7 +1,7 @@
 # Drift E3 Bot
 
-A trading bot for **Drift Protocol** with backtesting and parameter optimization.  
-Current Version: **v0.4.2**
+A trading bot for **Drift Protocol** with backtesting and parameter optimization.
+Current Version: **v0.4.3**
 
 ---
 
@@ -62,6 +62,13 @@ Current Version: **v0.4.2**
 ---
 
 ## Release Notes
+
+### v0.4.3
+- **CRITICAL FIX**: Resolved trade data parsing issue that caused 0 trades in optimizer
+- Fixed `mapTrade` function to properly handle `oraclePrice` field from trade CSV files
+- Fixed funding rate parsing to use `fundingRate` field from funding CSV files
+- Optimizer now generates trades and meaningful metrics (Sharpe, PnL, drawdown)
+- All 2,626+ trades per day now properly ingested vs 0 before
 
 ### v0.4.2
 - Fixed ingestion bug: relaxed filters in `safeParseFile`.

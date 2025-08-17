@@ -146,7 +146,7 @@ export class DriftDataProvider {
           );
           const fundingData = this.safeParseFile(fundingFile);
           fundingRate = Array.isArray(fundingData) && fundingData.length
-            ? fundingData[fundingData.length - 1].rate
+            ? fundingData[fundingData.length - 1].fundingRate || fundingData[fundingData.length - 1].rate
             : undefined;
         } catch {
           /* funding may not exist */
@@ -260,10 +260,30 @@ export class DriftDataProvider {
     if (!obj || typeof obj !== "object") return null;
 
     // Handle nested trade object formats from Drift archives
-    const trade = obj.price !== undefined ? obj : (obj.record || obj.trade || obj.data);
+    let trade: any = obj;
+    if (obj.record || obj.trade || obj.data) {
+      trade = obj.record || obj.trade || obj.data;
+    }
+
+    // CSV rows (object with numeric fields but 'ts' present)
+    if (typeof trade === "object" && "ts" in trade && "price" in trade === false) {
+      // map funding/trade CSV row
+      const mapped: any = {
+        price: Number(trade.markPriceTwap || trade.oraclePriceTwap || trade.oraclePrice || trade.price),
+        ts: Number(trade.ts),
+        slot: Number(trade.slot),
+        baseAmount: Number(trade.baseAssetAmountFilled || 0)
+      };
+      return isFinite(mapped.price) && isFinite(mapped.ts) ? mapped : null;
+    }
+
     if (!trade || typeof trade !== "object") return null;
 
     // Must have at least price
+    if (typeof trade.price !== "number") {
+      const p = Number(trade.price);
+      if (!isNaN(p)) trade.price = p;
+    }
     if (typeof trade.price !== "number" || !isFinite(trade.price)) return null;
 
     // Accept broader timestamp sources and coerce to number if string

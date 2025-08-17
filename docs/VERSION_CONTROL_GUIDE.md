@@ -82,6 +82,7 @@ Types:
   - `[--- COMMIT CHECKPOINT: v0.4.1a optimizer harness + strict ingestion]`
   - `[--- COMMIT CHECKPOINT: v0.4.2 data ingestion fix + diagnostics]`
   - `[--- COMMIT CHECKPOINT: v0.4.2 test optimizer run Jan 2023 range (no trades, ingestion validated)]`
+  - `[--- COMMIT CHECKPOINT: v0.4.3 trade data parsing fix - optimizer now generates trades]`
 
 ---
 

@@ -7,7 +7,7 @@ export interface Metrics {
   regimePnL?: Record<string, number>;
 }
 
-export interface FinalMetrics {
+export interface MetricsResult {
   trades: number;
   winRate: number;
   pnl: number;
@@ -17,7 +17,7 @@ export interface FinalMetrics {
   regimeBreakdown: Record<string, number>;
 }
 
-export function calculateMetrics(metrics: Metrics): FinalMetrics {
+export function computeMetrics(metrics: Metrics): MetricsResult {
   const returns: number[] = [];
   for (let i = 1; i < metrics.equityCurve.length; i++) {
     returns.push(metrics.equityCurve[i] - metrics.equityCurve[i - 1]);

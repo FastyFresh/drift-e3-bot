@@ -2,7 +2,7 @@ import { DriftDataProvider } from "./data/driftDataProvider";
 import { runTick, AgentDecision } from "./engine";
 import { logEvent } from "./logger";
 import { classifyRegime } from "./regimes";
-import { calculateMetrics, Metrics } from "./metrics";
+import { computeMetrics, Metrics } from "./metrics";
 
 interface PositionState {
   side: "long" | "short" | "flat";
@@ -49,7 +49,7 @@ function simulateTrade(
   return { executed: false };
 }
 
-async function runBacktest(
+export async function runBacktest(
   market: string,
   startDate: string,
   endDate: string,
@@ -85,7 +85,7 @@ async function runBacktest(
     logEvent("backtest_decision", { snapshot: snap, decision });
   }
 
-  const result = calculateMetrics(metrics);
+  const result = computeMetrics(metrics);
   const summary = {
     params: { market, startDate, endDate, withAi },
     metrics: result,
@@ -94,6 +94,17 @@ async function runBacktest(
   };
 
   console.log("Backtest summary:", summary);
+  console.log(
+    `Backtest diagnostics: trades=${metrics.trades} totalPnL=${metrics.pnl.toFixed(
+      2
+    )} equityLen=${metrics.equityCurve.length}`
+  );
+
+  if (metrics.trades === 0) {
+    console.warn(
+      `[WARNING] Backtest completed with 0 trades between ${startDate}-${endDate}`
+    );
+  }
 
   return summary;
 }

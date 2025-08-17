@@ -40,3 +40,5 @@ export const CONFIG = {
   cooldownSec: Number(env.COOLDOWN_SEC),
   slippageBps: Number(env.SLIPPAGE_BPS),
 } as const;
+
+export const thresholds: Record<string, number> = {};
