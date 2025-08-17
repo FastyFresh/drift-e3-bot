@@ -1,12 +1,13 @@
 # Project Guide
 
-## Recent Updates (v0.2.0)
+## Recent Updates (v0.3.0)
+- **Visualization Module**: Added `visualize.ts` to generate interactive Plotly equity curves and trade overlays, saved under `/var/plots`.
 - **Engine Abstraction**: Added `engine.ts` as the single pipeline for live + backtest runs (features → strategy → AI → logging → executor).
 - **Unified Logging**: New `logger.ts` persists all events in JSONL under `/var/logs` for reproducibility.
 - **Threshold Config**: Moved all strategy thresholds to `config/thresholds.json` for optimization sweeps.
 - **Backtest Harness Upgrade**: `backtest.ts` now replays multi-year SOL-PERP data, calls `engine.runTick()`, simulates trades, and exports JSON results under `/var/backtests`.
 - **Metrics & Regimes**: Integrated `metrics.ts` and `regimes.ts` for performance attribution by Sharpe, drawdown, win rate, and per-regime PnL.
-- **Research Ready**: Full reproducible pipeline in place to run 2021–2025 historical sims, log JSON outputs, and prepare for visualization/optimization loops.
+- **Research Ready**: Full reproducible pipeline in place to run 2021–2025 historical sims, log JSON outputs, visualize performance, and prepare for optimization loops.
 
 ## Next Steps
 - Add visualization (`visualize.ts`) for equity curves, regime overlays, and rolling performance metrics.
