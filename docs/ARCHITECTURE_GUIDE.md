@@ -170,6 +170,10 @@ sequenceDiagram
 ---
 
 ## Roadmap
-- **Near-term**: Exit management, L2 volume signals
-- **Mid-term**: Funding filters for strategies
-- **Long-term**: Backtesting and simulation framework
+- **Phase 1**: Strategy enhancement & diversification (implement Funding Fade, optimize E3 thresholds)
+- **Phase 2**: AI-powered intelligence (enhanced Ollama prompts, automated parameter tuning)
+- **Phase 3**: Advanced risk management (Kelly sizing, ATR-based stops, portfolio allocation)
+- **Phase 4**: Robust backtest-to-live pipeline (walk-forward, Monte Carlo, live micro-deployment)
+- **Phase 5**: Scaling & advanced features (market microstructure analysis, multi-market expansion)
+
+Reference [PROFITABILITY_ROADMAP.md](./PROFITABILITY_ROADMAP.md) for comprehensive implementation detail.

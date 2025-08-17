@@ -38,6 +38,7 @@
 - Integrate live execution with Drift smart contracts, enforcing risk limits (no paper trading layer).
 - Add regime‑segmented optimization: configs must hold Sharpe > 1 in bull, chop, bear.
 - Automate rolling optimizer runs to keep thresholds adaptive over time.
+- Reference [PROFITABILITY_ROADMAP.md](./PROFITABILITY_ROADMAP.md) for detailed phased implementation plan.
 
 This guide is the **single source of truth** for the trading automation system project. It contains the project overview, goals, current status, workflow rules, and instructions for resuming context.
 
