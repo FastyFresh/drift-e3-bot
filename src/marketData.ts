@@ -1,51 +1,96 @@
-import { DriftClient, PerpMarketAccount } from '@drift-labs/sdk';
-import { getPerpMidPrice, getOraclePrice } from './drift';
+import { DriftClient, PerpMarketAccount } from "@drift-labs/sdk";
+import { getPerpMidPrice, getOraclePrice } from "./drift";
 
-export type E3Features = {
-  bodyOverAtr: number;
-  volumeZ: number;
-  obImbalance: number;
-  premiumPct: number;
-};
+const atrWindow: number[] = [];
+const volWindow: number[] = [];
+const maxWindow = 14;
 
-let lastPrice: number | null = null;
-let lastVols: number[] = [];
-
-export async function getE3Features(drift: DriftClient, market: PerpMarketAccount): Promise<E3Features> {
-  const mid = await getPerpMidPrice(drift, market);
-  const oracle = await getOraclePrice(drift, market);
-  const premiumPct = (mid - oracle) / oracle * 100;
-
-  const prev = lastPrice ?? mid;
-  const body = Math.abs(mid - prev);
-  lastPrice = mid;
-
-  const window = 20;
-  if (lastVols.length >= window) { lastVols.pop(); }
-  lastVols.unshift(1.0);
-  const meanVol = lastVols.reduce((a,b)=>a+b,0) / lastVols.length;
-  const volZ = (1.0 - meanVol) / Math.max(1e-9, stddev(lastVols));
-
-  const atrProxy = rollingAtrProxy(body);
-  const bodyOverAtr = atrProxy > 0 ? body / atrProxy : 0.0;
-
-  const obImbalance = 0.5; // placeholder; wire L2 depth later
-
-  return { bodyOverAtr, volumeZ: isFinite(volZ) ? Math.abs(volZ) : 0, obImbalance, premiumPct };
+function rollingPush(arr: number[], val: number, window: number) {
+  arr.push(val);
+  if (arr.length > window) arr.shift();
 }
 
-let atrSeries: number[] = [];
-function rollingAtrProxy(newBody: number): number {
-  const n = 14;
-  atrSeries.unshift(newBody);
-  if (atrSeries.length > n) { atrSeries.pop(); }
-  const mean = atrSeries.reduce((a,b)=>a+b,0) / atrSeries.length;
-  return mean;
+// simple ATR proxy from price deltas
+function computeBodyOverAtr(mid: number): number {
+  if (atrWindow.length === 0) {
+    atrWindow.push(mid);
+    return 0;
+  }
+  const prev = atrWindow[atrWindow.length - 1];
+  const delta = Math.abs(mid - prev);
+  rollingPush(atrWindow, mid, maxWindow);
+
+  const avg = atrWindow.length > 1
+    ? atrWindow
+        .slice(1)
+        .map((p, i) => Math.abs(p - atrWindow[i]))
+        .reduce((a, b) => a + b, 0) / (atrWindow.length - 1)
+    : 0.0001;
+
+  const body = delta;
+  return avg ? body / avg : 0;
 }
 
-function stddev(arr: number[]): number {
-  if (arr.length < 2) return 0;
-  const m = arr.reduce((a,b)=>a+b,0)/arr.length;
-  const v = arr.reduce((a,b)=>a+(b-m)*(b-m),0)/arr.length;
-  return Math.sqrt(v);
+function computeVolumeZ(dummyVol = 1.0): number {
+  rollingPush(volWindow, dummyVol, maxWindow);
+  if (volWindow.length < 2) return 0;
+  const mean = volWindow.reduce((a, b) => a + b, 0) / volWindow.length;
+  const std = Math.sqrt(
+    volWindow.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0) / volWindow.length
+  );
+  return std ? (dummyVol - mean) / std : 0;
+}
+
+export async function getE3Features(drift: DriftClient, market: PerpMarketAccount) {
+  try {
+    const mid = await getPerpMidPrice(drift, market);
+    const oracle = await getOraclePrice(drift, market);
+
+    const bodyOverAtr = computeBodyOverAtr(mid);
+    const volumeZ = computeVolumeZ();
+    const obImbalance = 0.5; // TODO: replace with actual OB imbalance calc
+    const premiumPct = oracle ? ((mid - oracle) / oracle) * 100 : 0;
+
+    // new enriched features
+    const fundingRate = (market.amm.fundingPeriod !== undefined && market.amm.lastFundingRate !== undefined)
+      ? Number(market.amm.lastFundingRate) / 1e6
+      : 0;
+
+    const openInterest = market.amm.baseAssetAmountWithAmm ? Number(market.amm.baseAssetAmountWithAmm) : 0;
+
+    // realized vol: naive stdev over atrWindow deltas
+    let realizedVol = 0;
+    if (atrWindow.length > 1) {
+      const diffs = atrWindow.slice(1).map((p, i) => Math.abs(p - atrWindow[i]));
+      const mean = diffs.reduce((a,b) => a+b,0)/diffs.length;
+      const variance = diffs.reduce((a,b)=> a+Math.pow(b-mean,2),0)/diffs.length;
+      realizedVol = Math.sqrt(variance);
+    }
+
+    // simple bid-ask spread proxy: mid vs oracle
+    const spreadBps = oracle ? Math.abs(mid - oracle) / oracle * 10000 : 0;
+
+    return {
+      bodyOverAtr: isFinite(bodyOverAtr) ? bodyOverAtr : 0,
+      volumeZ: isFinite(volumeZ) ? volumeZ : 0,
+      obImbalance: isFinite(obImbalance) ? obImbalance : 0.5,
+      premiumPct: isFinite(premiumPct) ? premiumPct : 0,
+      fundingRate: isFinite(fundingRate) ? fundingRate : 0,
+      openInterest: isFinite(openInterest) ? openInterest : 0,
+      realizedVol: isFinite(realizedVol) ? realizedVol : 0,
+      spreadBps: isFinite(spreadBps) ? spreadBps : 0,
+    };
+  } catch (e) {
+    console.error("getE3Features error:", e);
+    return {
+      bodyOverAtr: 0,
+      volumeZ: 0,
+      obImbalance: 0.5,
+      premiumPct: 0,
+      fundingRate: 0,
+      openInterest: 0,
+      realizedVol: 0,
+      spreadBps: 0,
+    };
+  }
 }
