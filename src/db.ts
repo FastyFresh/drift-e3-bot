@@ -140,6 +140,13 @@ export function initDB() {
     )`
   ).run();
 
+  // Drop and recreate pnl table with new schema (development migration)
+  try {
+    db.prepare(`DROP TABLE IF EXISTS pnl`).run();
+  } catch (e) {
+    console.warn("Could not drop pnl table:", e);
+  }
+
   db.prepare(
     `CREATE TABLE IF NOT EXISTS pnl (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -170,10 +177,14 @@ export function initDB() {
     ensureColumn('signals', 'prompt', 'TEXT');
     ensureColumn('signals', 'llmResponse', 'TEXT');
 
-    // Create indexes for performance (idempotent)
-    db.prepare(`CREATE INDEX IF NOT EXISTS idx_signals_ts ON signals(timestamp)`).run();
-    db.prepare(`CREATE INDEX IF NOT EXISTS idx_orders_ts ON orders(timestamp)`).run();
-    db.prepare(`CREATE INDEX IF NOT EXISTS idx_pnl_ts ON pnl(ts)`).run();
+    // Create indexes for performance (idempotent) - after columns exist
+    try {
+      db.prepare(`CREATE INDEX IF NOT EXISTS idx_signals_ts ON signals(timestamp)`).run();
+      db.prepare(`CREATE INDEX IF NOT EXISTS idx_orders_ts ON orders(timestamp)`).run();
+      db.prepare(`CREATE INDEX IF NOT EXISTS idx_pnl_ts ON pnl(ts)`).run();
+    } catch (indexError) {
+      console.warn("Index creation warning:", indexError);
+    }
   } catch (error) {
     console.warn("Database initialization error:", error);
   }
