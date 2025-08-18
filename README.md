@@ -1,7 +1,7 @@
 # Drift E3 Bot
 
 A trading bot for **Drift Protocol** with backtesting and parameter optimization, specialized in capturing **explosive 1-minute price movements**.
-Current Version: **v0.6.6**
+Current Version: **v0.7.0** - Now with Professional Trading Dashboard!
 
 ---
 
@@ -18,6 +18,8 @@ Current Version: **v0.6.6**
 ---
 
 ## Features
+
+- **🎯 Professional Trading Dashboard** — Real-time web interface with performance monitoring, trade history, and strategy configuration
 - **Enhanced E3 Strategy** — Specialized for capturing explosive 1-minute price movements with volume spike detection
 - **Backtester** — Replays Drift historical trades and funding data to generate equity curves and performance metrics
 - **Advanced Optimizer** — Runs parameter sweeps with memory management and progress saving
