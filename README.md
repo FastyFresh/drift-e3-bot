@@ -1,7 +1,7 @@
 # Drift E3 Bot
 
 A trading bot for **Drift Protocol** with backtesting and parameter optimization, specialized in capturing **explosive 1-minute price movements**.
-Current Version: **v0.7.1** - Production Ready & Live Trading!
+Current Version: **v0.8.0** - Enhanced Risk Management & Leverage Optimization!
 
 ---
 
@@ -17,12 +17,38 @@ Current Version: **v0.7.1** - Production Ready & Live Trading!
 
 ## 🔴 **LIVE TRADING STATUS**
 
-**Bot is currently LIVE and monitoring markets!**
-- ✅ **Status**: Active and generating real-time signals
-- ✅ **Capital**: $137 USDC with conservative $12 position sizing
-- ✅ **Market**: SOL-PERP (optimal for explosive moves)
+**Bot is currently LIVE with enhanced risk management!**
+
+- ✅ **Status**: Active with real Drift equity integration
+- ✅ **Capital**: $83.58 USDC trading collateral (+ 533.54 SOL holdings)
+- ✅ **Position Size**: $22 per trade (0.26x leverage - Phase 1 increase)
+- ✅ **Market**: SOL-PERP with ATR-based exit management
 - ✅ **AI Model**: qwen2.5:7b-instruct via Ollama
-- ✅ **Safety**: Waiting for optimal explosive move conditions
+- ✅ **Risk Management**: ATR stops, 1R/2R partials, time-based exits
+- ✅ **Database**: Fully functional with Node.js v23 compatibility
+
+## 🎯 **Recent Enhancements (v0.8.0)**
+
+### **Real Drift Equity Integration**
+- **Live Account Monitoring**: Real-time equity from Drift Protocol APIs
+- **Smart Collateral Usage**: Uses only USDC trading collateral ($83.58) for safety
+- **Position Sizing**: Dynamic sizing based on actual account balance
+
+### **Advanced Exit Management**
+- **ATR-Based Stops**: Dynamic stop losses based on market volatility
+- **Progressive Profit Taking**: 50% exit at +1R, remaining at +2R
+- **Time-Based Protection**: Auto-exit if not profitable after 10 bars
+- **Reduce-Only Safety**: All exits use reduce-only orders
+
+### **Enhanced Risk Management**
+- **Leverage Optimization**: Increased to 0.26x (Phase 1 conservative increase)
+- **Real-Time Monitoring**: $22 position sizes with 0.8% risk per trade
+- **Comprehensive Logging**: Full PnL tracking with exit reasons
+
+### **Production Stability**
+- **Node.js v23 Compatible**: Updated better-sqlite3 to v12.2.0
+- **Database Resilience**: Graceful fallback to console logging
+- **Performance Indexes**: Optimized database queries
 
 ---
 

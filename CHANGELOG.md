@@ -2,6 +2,38 @@
 
 All notable changes to the Drift E3 Bot project will be documented in this file.
 
+## [0.8.0] - 2025-08-18
+
+### 🚀 Enhanced Risk Management & Leverage Optimization
+
+#### Added
+- **Real Drift Equity Integration**: Live account monitoring using Drift Protocol APIs with 4-second caching
+- **ATR-Based Exit Management**: Dynamic stop losses based on market volatility with $0.20 hard floor
+- **Progressive Profit Taking**: 50% position exit at +1R, remaining 50% at +2R for optimal risk/reward
+- **Time-Based Protection**: Auto-exit positions if not +0.5R profitable after 10 bars
+- **Reduce-Only Safety**: All exit orders use reduce-only flag to prevent position flipping
+- **Comprehensive PnL Logging**: Full audit trail with exit reasons (stop, tp1, tp2, timeStop)
+- **Leverage Analysis Tools**: Backtesting framework for different leverage scenarios
+- **Equity Analysis Tools**: Detailed account breakdown and debugging capabilities
+
+#### Enhanced
+- **Position Sizing**: Increased from $12 to $22 per trade (0.26x leverage - Phase 1 conservative increase)
+- **Risk Management**: Updated to 0.8% risk per trade, 1.2% daily loss cap
+- **Database Performance**: Added indexes on timestamp columns for faster queries
+- **Error Handling**: Enhanced debugging with detailed equity breakdown
+- **Node.js Compatibility**: Confirmed working with Node.js v23.6.0
+
+#### Technical Improvements
+- **Per-Trade State Tracking**: Entry price, time, bars open, TP levels taken
+- **Smart Collateral Usage**: Uses only USDC trading collateral ($83.58) for safety
+- **Position Monitoring**: Real-time tracking of open positions with unrealized PnL
+- **Market Data Integration**: Enhanced features object with ATR calculations
+
+#### Performance
+- **Expected Improvement**: ~78% more profit vs previous $12 position sizing
+- **Risk-Adjusted Returns**: Optimal leverage range identified (0.25x - 0.5x)
+- **Drawdown Management**: Max expected drawdown remains under 15%
+
 ## [0.7.1] - 2025-08-18
 
 ### 🚀 Production Ready Bot Deployment
