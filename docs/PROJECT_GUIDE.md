@@ -3,6 +3,7 @@
 ## Release Notes
 
 ### Aug 2025
+- **v0.7.0 - Professional Trading Dashboard**: Complete full-stack web dashboard with Express.js backend and React TypeScript frontend. Features real-time WebSocket updates, professional dark theme, and six main dashboard cards: Performance monitoring, Interactive equity curve, Trade history, Strategy configuration, Optimization control, and Risk management. Includes comprehensive API endpoints, responsive Material-UI design, and integration with existing bot data. Dashboard accessible at http://localhost:3000 with backend at http://localhost:3001.
 - **v0.6.5 - Memory-Efficient Optimizer**: Implemented chunked processing, progress tracking, and garbage collection to solve memory issues in parameter optimization. Optimizer now processes parameter sets in configurable chunks (default 5), saves progress after each chunk, and includes memory monitoring. Successfully tested 48 parameter sets without memory crashes, enabling comprehensive parameter sweeps for maximum profitability.
 - **v0.6.4 - E3 Strategy Critical Fix**: Fixed major bug in E3 strategy logic that was preventing proper trade filtering. Strategy now correctly evaluates all conditions (volume Z-score, order book imbalance, funding rate thresholds) instead of always triggering. Results show dramatic improvement from 1 trade in 7+ months to 60,000+ realistic trades with profitable parameter sets (+4.39 PnL achieved).
 - Funding Fade strategy implemented in `src/strategy/fundingFade.ts` following documented hypothesis.
@@ -12,7 +13,7 @@
 - Optimizer configured with new thresholds; began parameter sweeps for E3 and Funding Fade.
 - Documentation updated across PROFITABILITY_ROADMAP.md and STRATEGY_FUNDING_FADE.md.
 - Commit discipline following `/docs/VERSION_CONTROL_GUIDE.md` (atomic commits, tagging, checkpoints).
-- Checkpoint: `[--- COMMIT CHECKPOINT: v0.6.5 Memory-efficient optimizer - enables comprehensive parameter sweeps for maximum profitability]`
+- Checkpoint: `[--- COMMIT CHECKPOINT: v0.7.0 Professional Trading Dashboard Complete]`
 
 ### v0.6.3 (Aug 2025)
 - **Fix**: Optimizer parameter mapping for strategy-specific thresholds.
@@ -40,12 +41,39 @@
 - **Visualization Module**: Interactive Plotly equity curves and trade overlays saved under `/var/plots`.
 - **Research Ready**: Pipeline is structurally correct and logs consistently, but requires ingestion fix for full optimizer utility.
 
+## Dashboard Usage
+
+### Quick Start
+```bash
+# Start the complete dashboard (both backend and frontend)
+npm run dashboard
+
+# Or start components separately:
+npm run dashboard:backend  # Express.js API server (port 3001)
+npm run dashboard:frontend # React development server (port 3000)
+```
+
+### Dashboard Features
+- **Performance Monitoring**: Real-time P&L, metrics, and system status
+- **Interactive Equity Curve**: Professional charts with trade markers and zoom/pan
+- **Trade History**: Sortable table with real-time updates and filtering
+- **Strategy Configuration**: Visual parameter adjustment and file management
+- **Optimization Control**: Start/stop optimization runs with progress tracking
+- **Risk Management**: Real-time risk monitoring and emergency controls
+
+### Integration
+- **Real Data**: Reads from existing `var/backtests/`, `var/optimize/`, and `config/` directories
+- **WebSocket Updates**: Live streaming of performance and trade data
+- **API Endpoints**: RESTful API for all bot operations and data access
+- **Professional UI**: Dark theme optimized for extended trading sessions
+
 ## Next Steps
 - Extend visualization with regime overlays and rolling performance metrics.
 - Benchmark AI confirmation layer vs pure E3 signals by regime to quantify lift.
 - Integrate live execution with Drift smart contracts, enforcing risk limits (no paper trading layer).
 - Add regime‑segmented optimization: configs must hold Sharpe > 1 in bull, chop, bear.
 - Automate rolling optimizer runs to keep thresholds adaptive over time.
+- **Dashboard Enhancements**: Add live bot start/stop controls and real-time market data feeds.
 - Reference [PROFITABILITY_ROADMAP.md](./PROFITABILITY_ROADMAP.md) for detailed phased implementation plan.
 
 This guide is the **single source of truth** for the trading automation system project. It contains the project overview, goals, current status, workflow rules, and instructions for resuming context.
