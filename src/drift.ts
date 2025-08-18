@@ -50,7 +50,7 @@ export async function getOraclePrice(drift: DriftClient, market: PerpMarketAccou
   return oracle.price.toNumber() / 1e6;
 }
 
-export async function getEquityUsd(drift: DriftClient): Promise<number> {
+export async function getEquityUsd(drift: DriftClient, debug: boolean = false): Promise<number> {
   const now = Date.now();
 
   // Return cached value if still fresh
@@ -62,8 +62,35 @@ export async function getEquityUsd(drift: DriftClient): Promise<number> {
     const user = drift.getUser();
     if (!user) throw new Error("No user account");
 
-    // Get total collateral value in USD
+    // Get detailed account information for debugging
+    const userAccount = user.getUserAccount();
     const totalCollateral = user.getTotalCollateral();
+    const freeCollateral = user.getFreeCollateral();
+    const unrealizedPnl = user.getUnrealizedPNL();
+
+    if (debug) {
+      console.log("🔍 Equity Debug Info:");
+      console.log(`  Total Collateral: ${totalCollateral.toNumber() / 1e6} USDC`);
+      console.log(`  Free Collateral: ${freeCollateral.toNumber() / 1e6} USDC`);
+      console.log(`  Unrealized PnL: ${unrealizedPnl.toNumber() / 1e6} USDC`);
+      console.log(`  Spot Positions: ${userAccount.spotPositions.length}`);
+      console.log(`  Perp Positions: ${userAccount.perpPositions.length}`);
+
+      // Check individual spot positions
+      userAccount.spotPositions.forEach((pos, i) => {
+        if (!pos.scaledBalance.isZero()) {
+          console.log(`  Spot ${i}: ${pos.scaledBalance.toNumber() / 1e6} (Market: ${pos.marketIndex})`);
+        }
+      });
+
+      // Check individual perp positions
+      userAccount.perpPositions.forEach((pos, i) => {
+        if (!pos.baseAssetAmount.isZero()) {
+          console.log(`  Perp ${i}: ${pos.baseAssetAmount.toNumber() / 1e6} (Market: ${pos.marketIndex})`);
+        }
+      });
+    }
+
     const equityUsd = totalCollateral.toNumber() / 1e6; // Convert from 1e6 scaling
 
     // Cache the result

@@ -129,9 +129,13 @@ async function main() {
       // Get real equity with caching
       const equityUsd = await getEquityUsd(drift);
 
-      // Log equity every ~5 seconds
+      // Log equity every ~5 seconds, with detailed debug every 30 seconds
       const now = Date.now();
-      if (now - lastEquityLog > 5000) {
+      if (now - lastEquityLog > 30000) {
+        console.log(`💰 Equity: $${equityUsd.toFixed(2)} (with debug)`);
+        await getEquityUsd(drift, true); // Show debug info
+        lastEquityLog = now;
+      } else if (now - lastEquityLog > 5000) {
         console.log(`💰 Equity: $${equityUsd.toFixed(2)}`);
         lastEquityLog = now;
       }
