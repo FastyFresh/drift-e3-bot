@@ -2,6 +2,8 @@ export interface E3Decision {
   trigger: boolean;
   side: "long" | "short" | "flat";
   reasons: string[];
+  exitSignal?: "take_profit" | "stop_loss" | "trailing_stop" | "strategy_exit";
+  confidence?: number; // 0-1 scale for big move prediction
 }
 
 interface Features {
@@ -13,6 +15,14 @@ interface Features {
   openInterest: number;
   realizedVol: number;
   spreadBps: number;
+  currentPrice?: number; // For exit management
+}
+
+interface PositionState {
+  side: "long" | "short" | "flat";
+  entryPrice: number;
+  highWaterMark?: number; // For trailing stops
+  lowWaterMark?: number;  // For trailing stops
 }
 
 export function e3Decision(features: Features): E3Decision {
@@ -26,13 +36,20 @@ export function e3Decision(features: Features): E3Decision {
     volumeZ: thrVol,
     premiumPct: thrPremium,
     realizedVol: thrVolatility,
-    spreadBps: thrSpread
+    spreadBps: thrSpread,
+    // New: Big move prediction thresholds
+    bigMoveVolumeZ: bigMoveVolZ = 2.5,
+    bigMoveBodyAtr: bigMoveBody = 0.8,
+    confidenceMultiplier: confMult = 1.0
   } = (global as any).CONFIG?.thresholds || {
     bodyOverAtr: 1.0,
     volumeZ: 1.0,
     premiumPct: 0.005,
     realizedVol: 5.0,
-    spreadBps: 50
+    spreadBps: 50,
+    bigMoveVolumeZ: 2.5,
+    bigMoveBodyAtr: 0.8,
+    confidenceMultiplier: 1.0
   };
 
   // Momentum checks - FILTER OUT if conditions not met
@@ -86,10 +103,120 @@ export function e3Decision(features: Features): E3Decision {
     }
 
     reasons.push("✅ All filters passed");
+
+    // Big move confidence scoring (0-1 scale)
+    let confidence = 0.5; // Base confidence
+
+    // Volume surge indicates potential big move
+    if (features.volumeZ > bigMoveVolZ) {
+      confidence += 0.2;
+      reasons.push(`🚀 High volume surge (${features.volumeZ.toFixed(2)}x) - big move potential`);
+    }
+
+    // Strong momentum indicates explosive potential
+    if (features.bodyOverAtr > bigMoveBody) {
+      confidence += 0.15;
+      reasons.push(`💥 Strong momentum (${features.bodyOverAtr.toFixed(2)}) - explosive potential`);
+    }
+
+    // Premium extremes often precede reversals/continuations
+    if (Math.abs(features.premiumPct) > thrPremium) {
+      confidence += 0.1;
+      reasons.push(`⚡ Premium extreme (${(features.premiumPct * 100).toFixed(3)}%) - reversal/continuation setup`);
+    }
+
+    // Order book imbalance extremes
+    if (features.obImbalance > 0.7 || features.obImbalance < 0.3) {
+      confidence += 0.05;
+      reasons.push(`📊 OB imbalance extreme (${features.obImbalance.toFixed(3)}) - directional pressure`);
+    }
+
+    confidence = Math.min(1.0, confidence * confMult);
+
+    return { trigger, side, reasons, confidence };
   } else {
     side = "flat";
     reasons.push("❌ Filtered out");
+    return { trigger, side, reasons, confidence: 0 };
+  }
+}
+
+// Exit management function for trailing stops and take profits
+export function e3ExitDecision(
+  position: PositionState,
+  currentPrice: number,
+  features: Features
+): E3Decision {
+  const reasons: string[] = [];
+
+  if (position.side === "flat") {
+    return { trigger: false, side: "flat", reasons: ["No position to exit"], confidence: 0 };
   }
 
-  return { trigger, side, reasons };
+  const {
+    takeProfitPct = 0.02,    // 2% take profit
+    stopLossPct = 0.01,      // 1% stop loss
+    trailingStopPct = 0.005  // 0.5% trailing stop
+  } = (global as any).CONFIG?.thresholds || {};
+
+  const entryPrice = position.entryPrice;
+  const pnlPct = position.side === "long"
+    ? (currentPrice - entryPrice) / entryPrice
+    : (entryPrice - currentPrice) / entryPrice;
+
+  // Take profit check
+  if (pnlPct >= takeProfitPct) {
+    return {
+      trigger: true,
+      side: "flat",
+      reasons: [`💰 Take profit hit: ${(pnlPct * 100).toFixed(2)}% >= ${(takeProfitPct * 100).toFixed(1)}%`],
+      exitSignal: "take_profit",
+      confidence: 0.9
+    };
+  }
+
+  // Stop loss check
+  if (pnlPct <= -stopLossPct) {
+    return {
+      trigger: true,
+      side: "flat",
+      reasons: [`🛑 Stop loss hit: ${(pnlPct * 100).toFixed(2)}% <= -${(stopLossPct * 100).toFixed(1)}%`],
+      exitSignal: "stop_loss",
+      confidence: 0.9
+    };
+  }
+
+  // Trailing stop logic
+  const highWater = position.highWaterMark || entryPrice;
+  const lowWater = position.lowWaterMark || entryPrice;
+
+  if (position.side === "long") {
+    const newHigh = Math.max(highWater, currentPrice);
+    const trailingStopPrice = newHigh * (1 - trailingStopPct);
+
+    if (currentPrice <= trailingStopPrice && newHigh > entryPrice * (1 + trailingStopPct)) {
+      return {
+        trigger: true,
+        side: "flat",
+        reasons: [`📉 Trailing stop: ${currentPrice.toFixed(4)} <= ${trailingStopPrice.toFixed(4)}`],
+        exitSignal: "trailing_stop",
+        confidence: 0.8
+      };
+    }
+  } else if (position.side === "short") {
+    const newLow = Math.min(lowWater, currentPrice);
+    const trailingStopPrice = newLow * (1 + trailingStopPct);
+
+    if (currentPrice >= trailingStopPrice && newLow < entryPrice * (1 - trailingStopPct)) {
+      return {
+        trigger: true,
+        side: "flat",
+        reasons: [`📈 Trailing stop: ${currentPrice.toFixed(4)} >= ${trailingStopPrice.toFixed(4)}`],
+        exitSignal: "trailing_stop",
+        confidence: 0.8
+      };
+    }
+  }
+
+  return { trigger: false, side: position.side, reasons: ["Position maintained"], confidence: 0.5 };
 }

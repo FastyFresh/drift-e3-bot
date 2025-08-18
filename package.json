@@ -1,6 +1,6 @@
 {
   "name": "drift-e3-bot",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "license": "MIT",
   "scripts": {
     "start": "ts-node --transpile-only src/index.ts",
