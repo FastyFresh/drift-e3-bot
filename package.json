@@ -26,6 +26,7 @@
     "start": "ts-node --transpile-only src/index.ts",
     "build": "tsc",
     "clean": "rm -rf dist node_modules/.cache",
+    "cleanup": "chmod +x scripts/cleanup.sh && ./scripts/cleanup.sh",
     "// Testing & Quality": "",
     "test": "echo 'Tests coming soon' && exit 0",
     "test:watch": "echo 'Test watch coming soon' && exit 0",
