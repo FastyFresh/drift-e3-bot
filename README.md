@@ -1,7 +1,7 @@
 # Drift E3 Bot
 
 A trading bot for **Drift Protocol** with backtesting and parameter optimization, specialized in capturing **explosive 1-minute price movements**.
-Current Version: **v0.8.0** - Enhanced Risk Management & Leverage Optimization!
+Current Version: **v0.8.0** - Enhanced Risk Management, Leverage Optimization & Modern Development Tooling!
 
 ---
 
@@ -57,6 +57,13 @@ Current Version: **v0.8.0** - Enhanced Risk Management & Leverage Optimization!
 - **Complete Pipeline**: Data prep, training, evaluation, integration
 - **Documentation**: Comprehensive setup and usage guides
 
+### **🛠️ Modern Development Tooling (NEW!)**
+- **TypeScript Enhancement**: Path mapping, strict typing, modern ES2022
+- **Code Quality**: ESLint + Prettier integration with auto-formatting
+- **Development Workflow**: Type checking, linting, building, testing
+- **Organized Scripts**: Categorized npm scripts for all operations
+- **Quality Assurance**: Automated formatting and error detection
+
 ---
 
 ## Features
@@ -76,32 +83,59 @@ Current Version: **v0.8.0** - Enhanced Risk Management & Leverage Optimization!
 
 ---
 
-## Quick Start
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/FastyFresh/drift-e3-bot.git
-   cd drift-e3-bot
-   ```
+## 🚀 **Quick Start**
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### **1. Clone and Setup**
+```bash
+git clone https://github.com/FastyFresh/drift-e3-bot.git
+cd drift-e3-bot
+npm install
+```
 
-3. Run optimizer (example):
-   ```bash
-   npx ts-node src/optimize.ts
-   ```
+### **2. Configure Environment**
+```bash
+cp .env.example .env
+# Edit .env with your Drift API keys and trading parameters
+```
 
-4. Use the optimal configuration for explosive moves:
-   ```bash
-   npm run backtest -- --config=config/optimal-e3-explosive.json
-   ```
+### **3. Development Workflow**
+```bash
+# Development with auto-restart
+npm run dev
 
-5. Run optimization with memory management:
-   ```bash
-   npm run optimize:memory -- --strategy=E3 --config=config/optimize-e3-focused.json
-   ```
+# Production start
+npm run start
+
+# Quality checks
+npm run type-check    # TypeScript validation
+npm run lint          # Code quality check
+npm run format        # Auto-format code
+npm run build         # Compile TypeScript
+```
+
+### **4. Trading Operations**
+```bash
+# Start trading bot
+npm run bot:start
+
+# Run backtesting
+npm run bot:backtest
+
+# Analyze equity
+npm run analyze:equity
+
+# Optimize parameters
+npm run bot:optimize
+```
+
+### **5. LoRA Training (Optional)**
+```bash
+# Setup training environment
+npm run training:setup
+
+# Complete training pipeline
+npm run training:all
+```
 
 ---
 
