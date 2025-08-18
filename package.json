@@ -7,7 +7,11 @@
     "backtest": "ts-node --transpile-only src/backtest.ts",
     "visualize": "ts-node --transpile-only src/visualize.ts",
     "optimize": "node --expose-gc --max-old-space-size=8192 -r ts-node/register/transpile-only src/optimize.ts",
-    "optimize:memory": "node --expose-gc --max-old-space-size=4096 -r ts-node/register/transpile-only src/optimize.ts"
+    "optimize:memory": "node --expose-gc --max-old-space-size=4096 -r ts-node/register/transpile-only src/optimize.ts",
+    "dashboard": "./dashboard/start-dashboard.sh",
+    "dashboard:backend": "cd dashboard/backend && npm run dev",
+    "dashboard:frontend": "cd dashboard/frontend && npm start",
+    "dashboard:build": "cd dashboard/backend && npm run build && cd ../frontend && npm run build"
   },
   "dependencies": {
     "@drift-labs/sdk": "^2.134.0",

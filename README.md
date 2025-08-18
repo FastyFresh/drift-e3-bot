@@ -82,9 +82,39 @@ The **Enhanced E3** strategy has been optimized through analysis of **359 parame
 # Backtest with optimal parameters
 npm run backtest -- --config=config/optimal-e3-explosive.json
 
+# Start professional web dashboard
+npm run dashboard
+
 # Live trading (when implemented)
 npm run trade -- --config=config/optimal-e3-explosive.json
 ```
+
+---
+
+## 🎯 **Professional Trading Dashboard**
+
+**NEW**: Comprehensive web-based dashboard for monitoring and controlling your trading bot!
+
+### **🚀 Quick Start Dashboard**
+```bash
+npm run dashboard
+```
+- **Frontend**: http://localhost:3000 (Professional trading interface)
+- **Backend API**: http://localhost:3001 (REST API + WebSocket)
+
+### **📊 Dashboard Features**
+- **Real-Time Performance**: Live P&L, equity curve, trade monitoring
+- **Strategy Configuration**: Visual parameter adjustment and optimization
+- **Risk Management**: Real-time risk monitoring and emergency controls
+- **Optimization Control**: Start/stop parameter optimization with progress tracking
+- **Trade History**: Comprehensive trade analysis and filtering
+- **Professional UI**: Dark theme optimized for extended trading sessions
+
+### **🎨 Built for Traders**
+- Financial industry UI patterns with high contrast design
+- Real-time WebSocket updates for live data streaming
+- Mobile-responsive design for monitoring on any device
+- Professional-grade error handling and connection management
 
 ---
 
