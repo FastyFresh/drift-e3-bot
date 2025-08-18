@@ -1,6 +1,6 @@
 export interface FundingFadeDecision {
   trigger: boolean;
-  side: "long" | "short" | "flat";
+  side: 'long' | 'short' | 'flat';
   reasons: string[];
 }
 
@@ -15,34 +15,34 @@ interface Features {
 export function fundingFadeDecision(features: Features): FundingFadeDecision {
   const reasons: string[] = [];
   let trigger = false;
-  let side: "long" | "short" | "flat" = "flat";
+  let side: 'long' | 'short' | 'flat' = 'flat';
 
   // thresholds (with fallbacks if CONFIG.thresholds not provided)
   const {
     fundingRate: thrFunding,
     premiumPct: thrPremium,
     spreadBps: thrSpread,
-    volumeZ: thrVolZ
+    volumeZ: thrVolZ,
   } = (global as any).CONFIG?.thresholds || {
     fundingRate: 0.0001, // 0.01%
-    premiumPct: 0.005,   // 0.5%
+    premiumPct: 0.005, // 0.5%
     spreadBps: 30,
-    volumeZ: 1.0
+    volumeZ: 1.0,
   };
 
   // Entry rules
   if (features.fundingRate > thrFunding && features.premiumPct > thrPremium) {
-    side = "short";
+    side = 'short';
     trigger = true;
     reasons.push(`funding ${features.fundingRate} > ${thrFunding}`);
     reasons.push(`premium ${features.premiumPct} > ${thrPremium}`);
   } else if (features.fundingRate < -thrFunding && features.premiumPct < -thrPremium) {
-    side = "long";
+    side = 'long';
     trigger = true;
     reasons.push(`funding ${features.fundingRate} < -${thrFunding}`);
     reasons.push(`premium ${features.premiumPct} < -${thrPremium}`);
   } else {
-    reasons.push("no extreme funding + premium alignment");
+    reasons.push('no extreme funding + premium alignment');
   }
 
   // Filters
@@ -55,5 +55,5 @@ export function fundingFadeDecision(features: Features): FundingFadeDecision {
     reasons.push(`volumeZ ${features.volumeZ} < ${thrVolZ}`);
   }
 
-  return { trigger, side: trigger ? side : "flat", reasons };
+  return { trigger, side: trigger ? side : 'flat', reasons };
 }

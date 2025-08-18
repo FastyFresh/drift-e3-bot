@@ -57,8 +57,8 @@ async function checkEquityDetails() {
     console.log("\n🏦 ACCOUNT SUMMARY:");
     console.log(`Account Public Key: ${userAccount.authority.toString()}`);
     console.log(`Sub Account ID: ${userAccount.subAccountId}`);
-    console.log(`Max Margin Ratio: ${userAccount.maxMarginRatio.toNumber()}`);
-    console.log(`Next Liquidation ID: ${userAccount.nextLiquidationId.toNumber()}`);
+    console.log(`Max Margin Ratio: ${userAccount.maxMarginRatio}`);
+    console.log(`Next Liquidation ID: ${userAccount.nextLiquidationId}`);
     
     // Compare with our getEquityUsd function
     const ourEquity = await getEquityUsd(drift);

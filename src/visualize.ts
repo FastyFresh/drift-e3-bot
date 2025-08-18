@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+// @ts-ignore - No types available for plotly.js-dist-min
 import plotly from "plotly.js-dist-min";
 
 interface EquityPoint {
