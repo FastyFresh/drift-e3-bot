@@ -36,8 +36,8 @@
 - [x] `src/main.ts` → New main entry point created
 - [x] `src/marketData.ts` → Integrated with new market data provider
 - [x] `src/drift.ts` → Integrated with new data layer (equity and price functions)
-- [ ] `src/backtest.ts` → Update to use new components
-- [ ] `src/optimize.ts` → Update to use new strategy manager
+- [x] `src/backtest.ts` → New BacktestEngine created (`src/core/backtest.ts`)
+- [x] `src/optimize.ts` → New OptimizationEngine created (`src/core/optimize.ts`)
 - [ ] `src/aiGate.ts` → Integrate with new AI provider system
 
 #### **Analysis Files**
@@ -56,6 +56,8 @@
 - [x] Main trading engine (`src/core/engine.ts`)
 - [x] New main entry point (`src/main.ts`)
 - [x] Package.json scripts updated
+- [x] Backtest engine (`src/core/backtest.ts`) with new scripts (`src/scripts/backtest.ts`)
+- [x] Optimization engine (`src/core/optimize.ts`) with new scripts (`src/scripts/optimize.ts`)
 
 ## 🧹 **Cleanup Tasks**
 

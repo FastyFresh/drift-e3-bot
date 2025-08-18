@@ -72,12 +72,19 @@ Current Version: **v0.8.0** - Enhanced Risk Management, Leverage Optimization & 
 - **AI Integration**: Modular AI providers with Ollama support and retry mechanisms
 - **Configuration Management**: Centralized config with Zod validation
 
-### **🚀 Integrated Trading Engine (NEW!)**
+### **🚀 Integrated Trading Engine**
 - **MainTradingEngine**: Complete orchestration of all modular components
 - **Multi-Strategy Support**: E3 and FundingFade strategies with active selection
 - **Real-Time Integration**: Live market data, equity monitoring, and position tracking
 - **Legacy Compatibility**: New architecture alongside existing functionality
 - **Comprehensive Logging**: Structured logging with component-based filtering
+
+### **📊 Modular Backtesting & Optimization (NEW!)**
+- **BacktestEngine**: New modular backtesting with enhanced metrics and position tracking
+- **OptimizationEngine**: Memory-efficient parameter optimization with progress tracking
+- **Enhanced Analytics**: Sharpe ratio, max drawdown, win rate, and profit factor calculations
+- **Progress Monitoring**: Real-time optimization progress with intermediate result saving
+- **Legacy Compatibility**: New scripts alongside existing backtest and optimize functionality
 
 ---
 
@@ -130,17 +137,22 @@ npm run build         # Compile TypeScript
 
 ### **4. Trading Operations**
 ```bash
-# Start trading bot
+# Start trading bot (new modular architecture)
 npm run bot:start
 
-# Run backtesting
+# Run backtesting (new modular engine)
 npm run bot:backtest
+
+# Run parameter optimization (new modular engine)
+npm run bot:optimize
 
 # Analyze equity
 npm run analyze:equity
 
-# Optimize parameters
-npm run bot:optimize
+# Legacy operations (preserved for compatibility)
+npm run bot:start:legacy
+npm run bot:backtest:legacy
+npm run bot:optimize:legacy
 ```
 
 ### **5. LoRA Training (Optional)**

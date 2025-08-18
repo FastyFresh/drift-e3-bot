@@ -58,6 +58,9 @@ All notable changes to the Drift E3 Bot project will be documented in this file.
 - **Entry Point Migration**: New main.ts using modular architecture, legacy index.ts preserved
 - **Package Scripts**: Updated to use new architecture while maintaining backward compatibility
 - **Configuration Enhancement**: Multi-strategy support with E3 and FundingFade configurations
+- **Backtest Integration**: New BacktestEngine with modular architecture and enhanced metrics
+- **Optimization Integration**: New OptimizationEngine with memory management and progress tracking
+- **Script Migration**: New backtest and optimize scripts using modular components
 
 ## [0.7.1] - 2025-08-18
 
