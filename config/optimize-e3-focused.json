@@ -1,0 +1,22 @@
+{
+  "market": "SOL-PERP",
+  "startDate": "20231001",
+  "endDate": "20231230",
+  "chunkSize": 3,
+  "saveProgress": true,
+  "maxDrawdown": 0.25,
+  "comment": "Focused optimization for explosive 1-minute moves - reduced parameter space for practical execution",
+  "params": {
+    "bodyOverAtr": [0.5, 0.8, 1.0],
+    "volumeZ": [2.0, 2.5, 3.0],
+    "premiumPct": [0.002, 0.003, 0.005],
+    "realizedVol": [3.0, 5.0, 8.0],
+    "spreadBps": [30, 50, 75],
+    "bigMoveVolumeZ": [2.5, 3.0],
+    "bigMoveBodyAtr": [0.8, 1.0],
+    "confidenceMultiplier": [1.0, 1.2],
+    "takeProfitPct": [0.02, 0.025],
+    "stopLossPct": [0.01, 0.012],
+    "trailingStopPct": [0.005, 0.008]
+  }
+}
