@@ -4,11 +4,7 @@
  */
 
 import { BaseAIProvider } from './base';
-import type {
-  TradingDecision,
-  MarketFeatures,
-  AIConfig,
-} from '@/core/types';
+import type { TradingDecision, MarketFeatures, AIConfig } from '@/core/types';
 
 /**
  * Ollama AI Provider Implementation
@@ -46,7 +42,7 @@ export class OllamaAIProvider extends BaseAIProvider {
       const prompt = this.buildPrompt(features, context);
       const response = await this.callOllama(prompt);
       const parsed = this.parseAIResponse(response);
-      
+
       const decision = this.createDecision(
         parsed.direction,
         parsed.confidence,
@@ -69,7 +65,7 @@ export class OllamaAIProvider extends BaseAIProvider {
   private buildPrompt(features: MarketFeatures, context?: string): string {
     const marketData = this.formatFeaturesForPrompt(features);
     const contextSection = context ? `\nAdditional Context: ${context}` : '';
-    
+
     return `
 You are an expert cryptocurrency trader analyzing SOL-PERP market conditions for explosive 1-minute price movements.
 
@@ -127,7 +123,7 @@ Reasoning: [Your analysis]
         throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
       }
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
 
       if (!data.response) {
         throw new Error('No response from Ollama');
@@ -136,11 +132,11 @@ Reasoning: [Your analysis]
       return data.response;
     } catch (error) {
       clearTimeout(timeoutId);
-      
+
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error(`Ollama request timeout after ${this.config.timeout}ms`);
       }
-      
+
       throw error;
     }
   }
@@ -161,12 +157,12 @@ Reasoning: [Your analysis]
         return false;
       }
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
 
       // Check if our model is available
       const models = data.models || [];
       const modelExists = models.some((model: any) => model.name === this.config.modelName);
-      
+
       if (modelExists) {
         // Extract version if available
         const modelInfo = models.find((model: any) => model.name === this.config.modelName);
@@ -186,12 +182,12 @@ Reasoning: [Your analysis]
   public async getAvailableModels(): Promise<string[]> {
     try {
       const response = await fetch(`${this.config.baseUrl}/api/tags`);
-      
+
       if (!response.ok) {
         return [];
       }
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
       return (data.models || []).map((model: any) => model.name);
     } catch (error) {
       console.error('❌ Failed to get available models:', error);
@@ -209,7 +205,7 @@ Reasoning: [Your analysis]
     console.log(`   Timeout: ${this.config.timeout}ms`);
 
     const isConnected = await this.testConnection();
-    
+
     if (!isConnected) {
       throw new Error(`Failed to connect to Ollama or model ${this.config.modelName} not found`);
     }
@@ -223,7 +219,7 @@ Reasoning: [Your analysis]
    */
   public getStatistics(): Record<string, any> {
     const baseStats = super.getStatistics();
-    
+
     return {
       ...baseStats,
       baseUrl: this.config.baseUrl,
@@ -237,28 +233,33 @@ Reasoning: [Your analysis]
    */
   private async withRetry<T>(operation: () => Promise<T>): Promise<T> {
     let lastError: Error | null = null;
-    
+
     for (let attempt = 1; attempt <= this.config.maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error as Error;
-        
+
         if (attempt < this.config.maxRetries) {
           const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Exponential backoff
-          console.warn(`⚠️ Ollama request failed (attempt ${attempt}/${this.config.maxRetries}), retrying in ${delay}ms...`);
+          console.warn(
+            `⚠️ Ollama request failed (attempt ${attempt}/${this.config.maxRetries}), retrying in ${delay}ms...`
+          );
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
-    
+
     throw lastError || new Error('All retry attempts failed');
   }
 
   /**
    * Analyze with retry mechanism
    */
-  public async analyzeWithRetry(features: MarketFeatures, context?: string): Promise<TradingDecision> {
+  public async analyzeWithRetry(
+    features: MarketFeatures,
+    context?: string
+  ): Promise<TradingDecision> {
     return this.withRetry(() => this.analyze(features, context));
   }
 }

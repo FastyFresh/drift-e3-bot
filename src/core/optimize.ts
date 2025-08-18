@@ -62,11 +62,14 @@ export class OptimizationEngine {
    */
   public async loadMarketData(config: OptimizeConfig): Promise<void> {
     try {
-      logger.info('OptimizationEngine', `📊 Loading market data: ${config.startDate} to ${config.endDate}`);
-      
+      logger.info(
+        'OptimizationEngine',
+        `📊 Loading market data: ${config.startDate} to ${config.endDate}`
+      );
+
       // Import the existing data provider
       const { DriftDataProvider } = await import('../data/driftDataProvider');
-      
+
       const provider = new DriftDataProvider();
       const snapshots = await provider.load(
         config.symbol || 'SOL-PERP',
@@ -74,16 +77,16 @@ export class OptimizationEngine {
         config.endDate || '2023-12-31',
         '1m'
       );
-      
+
       logger.info('OptimizationEngine', `📈 Loaded ${snapshots.length} data points`);
-      
+
       // Convert snapshots to MarketFeatures (simplified for optimization)
       this.marketData = snapshots.map(snapshot => {
         const candle = snapshot.candle;
         const price = candle.close || candle.open || 0;
         const body = candle.close - candle.open;
         const atr = Math.max(1, candle.high - candle.low);
-        
+
         return {
           price,
           volume: candle.volume || 0,
@@ -110,7 +113,7 @@ export class OptimizationEngine {
    */
   public generateParameterSets(config: OptimizeConfig): Record<string, number>[] {
     const keys = Object.keys(config.parameters);
-    
+
     if (config.randomSamples && config.randomSamples > 0) {
       // Random sampling
       const samples: Record<string, number>[] = [];
@@ -124,19 +127,15 @@ export class OptimizationEngine {
       }
       return samples;
     }
-    
+
     // Full grid search
     const cartesian = (arr: number[][]): number[][] =>
-      arr.reduce(
-        (a, b) =>
-          a
-            .map((x) => b.map((y) => x.concat(y)))
-            .reduce((a, b) => a.concat(b), []),
-        [[]] as number[][]
-      );
-    
-    const grid = cartesian(keys.map((k) => config.parameters[k]));
-    return grid.map((vals) => {
+      arr.reduce((a, b) => a.map(x => b.map(y => x.concat(y))).reduce((a, b) => a.concat(b), []), [
+        [],
+      ] as number[][]);
+
+    const grid = cartesian(keys.map(k => config.parameters[k]));
+    return grid.map(vals => {
       const params: Record<string, number> = {};
       vals.forEach((v, i) => (params[keys[i]] = v));
       return params;
@@ -148,59 +147,70 @@ export class OptimizationEngine {
    */
   public async runOptimization(config: OptimizeConfig): Promise<OptimizationSummary> {
     const startTime = Date.now();
-    
+
     logger.info('OptimizationEngine', '🚀 Starting parameter optimization...');
-    
+
     // Generate parameter sets
     const parameterSets = this.generateParameterSets(config);
-    logger.info('OptimizationEngine', `🎯 Generated ${parameterSets.length} parameter combinations`);
-    
+    logger.info(
+      'OptimizationEngine',
+      `🎯 Generated ${parameterSets.length} parameter combinations`
+    );
+
     // Process in chunks to manage memory
     const chunkSize = config.chunkSize || 10;
     const chunks = this.chunkArray(parameterSets, chunkSize);
-    
+
     let completedSets = 0;
     this.results = [];
-    
+
     for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
       const chunk = chunks[chunkIndex];
-      
-      logger.info('OptimizationEngine', `📊 Processing chunk ${chunkIndex + 1}/${chunks.length} (${chunk.length} sets)`);
-      
+
+      logger.info(
+        'OptimizationEngine',
+        `📊 Processing chunk ${chunkIndex + 1}/${chunks.length} (${chunk.length} sets)`
+      );
+
       // Process chunk
       for (const parameters of chunk) {
         try {
           const result = await this.testParameterSet(parameters, config);
           this.results.push(result);
           completedSets++;
-          
+
           const progress = ((completedSets / parameterSets.length) * 100).toFixed(1);
-          logger.info('OptimizationEngine', `⚡ Progress: ${progress}% (${completedSets}/${parameterSets.length})`);
-          
+          logger.info(
+            'OptimizationEngine',
+            `⚡ Progress: ${progress}% (${completedSets}/${parameterSets.length})`
+          );
         } catch (error) {
-          logger.error('OptimizationEngine', '❌ Error testing parameter set', { parameters, error });
+          logger.error('OptimizationEngine', '❌ Error testing parameter set', {
+            parameters,
+            error,
+          });
         }
       }
-      
+
       // Force garbage collection between chunks
       this.forceGC();
-      
+
       // Save progress if enabled
       if (config.saveProgress) {
         await this.saveProgress(config, completedSets, parameterSets.length);
       }
     }
-    
+
     // Sort results by score
     this.results.sort((a, b) => b.score - a.score);
-    
+
     // Add ranks
     this.results.forEach((result, index) => {
       result.rank = index + 1;
     });
-    
+
     const duration = Date.now() - startTime;
-    
+
     const summary: OptimizationSummary = {
       config,
       totalParameterSets: parameterSets.length,
@@ -210,9 +220,12 @@ export class OptimizationEngine {
       duration,
       timestamp: new Date().toISOString(),
     };
-    
-    logger.info('OptimizationEngine', `✅ Optimization complete: ${completedSets} sets in ${(duration / 1000).toFixed(1)}s`);
-    
+
+    logger.info(
+      'OptimizationEngine',
+      `✅ Optimization complete: ${completedSets} sets in ${(duration / 1000).toFixed(1)}s`
+    );
+
     return summary;
   }
 
@@ -231,17 +244,17 @@ export class OptimizationEngine {
       strategy: config.strategy,
       initialEquity: config.initialEquity || 100000,
     };
-    
+
     // Create strategy config with parameters
     const strategyConfig: StrategyConfig = {
       name: config.strategy,
       parameters,
       enabled: true,
     };
-    
+
     // Run backtest with these parameters
     const engine = new BacktestEngine();
-    
+
     try {
       // Temporarily update global config for this test
       const { updateConfig } = await import('@/config/index');
@@ -250,14 +263,14 @@ export class OptimizationEngine {
           [config.strategy.toLowerCase()]: strategyConfig,
         },
       } as any);
-      
+
       await engine.initialize(backtestConfig);
       const metrics = await engine.runBacktest(this.marketData, backtestConfig);
       await engine.cleanup();
-      
+
       // Calculate optimization score
       const score = this.calculateScore(metrics, config);
-      
+
       return {
         parameters,
         metrics,
@@ -277,24 +290,25 @@ export class OptimizationEngine {
     if (config.maxDrawdown && metrics.maxDrawdown > config.maxDrawdown) {
       return -Infinity;
     }
-    
+
     // Require minimum number of trades
     if (metrics.totalTrades < 10) {
       return -Infinity;
     }
-    
+
     // Calculate score based on multiple factors
     const returnScore = metrics.totalPnL;
     const winRateScore = metrics.winRate / 100;
     const sharpeScore = Math.max(0, metrics.sharpeRatio);
     const drawdownPenalty = metrics.maxDrawdown;
-    
+
     // Weighted score
-    const score = returnScore * 0.4 + 
-                  winRateScore * 1000 * 0.2 + 
-                  sharpeScore * 1000 * 0.2 - 
-                  drawdownPenalty * 0.2;
-    
+    const score =
+      returnScore * 0.4 +
+      winRateScore * 1000 * 0.2 +
+      sharpeScore * 1000 * 0.2 -
+      drawdownPenalty * 0.2;
+
     return score;
   }
 
@@ -317,23 +331,30 @@ export class OptimizationEngine {
       global.gc();
     }
     const memUsage = process.memoryUsage();
-    logger.info('OptimizationEngine', `💾 Memory: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB heap, ${Math.round(memUsage.rss / 1024 / 1024)}MB RSS`);
+    logger.info(
+      'OptimizationEngine',
+      `💾 Memory: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB heap, ${Math.round(memUsage.rss / 1024 / 1024)}MB RSS`
+    );
   }
 
   /**
    * Save optimization progress
    */
-  private async saveProgress(config: OptimizeConfig, completed: number, total: number): Promise<void> {
+  private async saveProgress(
+    config: OptimizeConfig,
+    completed: number,
+    total: number
+  ): Promise<void> {
     try {
       const progressDir = path.join(process.cwd(), 'var', 'optimize');
       if (!fs.existsSync(progressDir)) {
         fs.mkdirSync(progressDir, { recursive: true });
       }
-      
+
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = `progress_${config.strategy}_${timestamp}.json`;
       const filepath = path.join(progressDir, filename);
-      
+
       const progress = {
         config,
         completed,
@@ -342,7 +363,7 @@ export class OptimizationEngine {
         topResults: this.results.slice(0, 5),
         timestamp: new Date().toISOString(),
       };
-      
+
       fs.writeFileSync(filepath, JSON.stringify(progress, null, 2));
     } catch (error) {
       logger.error('OptimizationEngine', '❌ Failed to save progress', error);

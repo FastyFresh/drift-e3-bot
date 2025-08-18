@@ -6,7 +6,14 @@
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
-import type { AppConfig, TradingConfig, DatabaseConfig, AIConfig, RiskParameters, StrategyConfig } from '@/core/types';
+import type {
+  AppConfig,
+  TradingConfig,
+  DatabaseConfig,
+  AIConfig,
+  RiskParameters,
+  StrategyConfig,
+} from '@/core/types';
 
 // Zod schemas for validation
 const TradingConfigSchema = z.object({
@@ -75,10 +82,10 @@ export class ConfigManager {
 
     // Load base configuration
     const baseConfig = this.loadBaseConfig();
-    
+
     // Load strategy configurations
     const strategies = this.loadStrategyConfigs();
-    
+
     // Merge configurations
     const config: AppConfig = {
       ...baseConfig,
@@ -87,7 +94,7 @@ export class ConfigManager {
 
     // Validate configuration
     const validatedConfig = AppConfigSchema.parse(config);
-    
+
     this.config = validatedConfig;
     return validatedConfig;
   }
@@ -109,7 +116,7 @@ export class ConfigManager {
     if (!this.config) {
       throw new Error('Configuration not loaded. Call loadConfig() first.');
     }
-    
+
     this.config = { ...this.config, ...updates };
   }
 
@@ -129,7 +136,9 @@ export class ConfigManager {
       database: {
         path: process.env.DATABASE_PATH || 'var/trading.db',
         enableLogging: process.env.ENABLE_DB_LOGGING !== 'false',
-        backupInterval: process.env.DB_BACKUP_INTERVAL ? parseInt(process.env.DB_BACKUP_INTERVAL) : undefined,
+        backupInterval: process.env.DB_BACKUP_INTERVAL
+          ? parseInt(process.env.DB_BACKUP_INTERVAL)
+          : undefined,
       },
       ai: {
         modelName: process.env.AI_MODEL_NAME || 'qwen2.5:7b-instruct',
@@ -245,7 +254,7 @@ export class ConfigManager {
 
     const targetPath = filePath || this.configPath;
     const configDir = path.dirname(targetPath);
-    
+
     // Ensure directory exists
     if (!fs.existsSync(configDir)) {
       fs.mkdirSync(configDir, { recursive: true });

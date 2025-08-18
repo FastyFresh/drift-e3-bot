@@ -28,7 +28,7 @@ export class MainTradingEngine implements TradingEngine {
   private database!: SQLiteDatabaseProvider;
   private marketData!: DriftMarketDataProvider;
   private aiProvider!: OllamaAIProvider;
-  
+
   private status: 'running' | 'stopped' | 'error' = 'stopped';
   private currentPosition: Position | null = null;
   private isInitialized = false;
@@ -101,7 +101,9 @@ export class MainTradingEngine implements TradingEngine {
 
     // Create Funding Fade strategy if enabled
     if (this.config.strategies.fundingFade?.enabled) {
-      const fundingFadeStrategy = this.strategyManager.createFundingFadeStrategy(this.config.strategies.fundingFade);
+      const fundingFadeStrategy = this.strategyManager.createFundingFadeStrategy(
+        this.config.strategies.fundingFade
+      );
       await fundingFadeStrategy.initialize();
       logger.info('TradingEngine', '💰 Funding Fade strategy created and initialized');
     }
@@ -249,8 +251,11 @@ export class MainTradingEngine implements TradingEngine {
     const positionSize = this.riskManager.calculatePositionSize(equity, decision.confidence);
 
     // Execute trade (placeholder - would integrate with actual execution)
-    logger.info('TradingEngine', `📈 Executing ${decision.direction} trade: $${positionSize.toFixed(2)}`);
-    
+    logger.info(
+      'TradingEngine',
+      `📈 Executing ${decision.direction} trade: $${positionSize.toFixed(2)}`
+    );
+
     // Create position record
     this.currentPosition = {
       side: decision.direction,
@@ -276,10 +281,16 @@ export class MainTradingEngine implements TradingEngine {
 
     // Update position with current price
     this.currentPosition.currentPrice = features.price;
-    this.currentPosition.unrealizedPnl = this.calculateUnrealizedPnl(this.currentPosition, features.price);
+    this.currentPosition.unrealizedPnl = this.calculateUnrealizedPnl(
+      this.currentPosition,
+      features.price
+    );
 
     // Check exit with active strategy
-    const exitDecision = await this.strategyManager.checkExitConditions(this.currentPosition, features);
+    const exitDecision = await this.strategyManager.checkExitConditions(
+      this.currentPosition,
+      features
+    );
     if (!exitDecision || !exitDecision.trigger) {
       return;
     }

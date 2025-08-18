@@ -65,7 +65,7 @@ export class Logger {
     };
 
     this.logs.push(entry);
-    
+
     // Trim logs if too many
     if (this.logs.length > this.maxLogs) {
       this.logs = this.logs.slice(-this.maxLogs);
@@ -75,7 +75,7 @@ export class Logger {
     const timestamp = new Date(entry.timestamp).toISOString();
     const levelStr = LogLevel[level];
     const prefix = `[${timestamp}] [${levelStr}] [${component}]`;
-    
+
     switch (level) {
       case LogLevel.DEBUG:
         console.debug(`${prefix} ${message}`, data || '');
@@ -94,15 +94,15 @@ export class Logger {
 
   public getLogs(component?: string, level?: LogLevel): LogEntry[] {
     let filtered = this.logs;
-    
+
     if (component) {
       filtered = filtered.filter(log => log.component === component);
     }
-    
+
     if (level !== undefined) {
       filtered = filtered.filter(log => log.level >= level);
     }
-    
+
     return filtered;
   }
 

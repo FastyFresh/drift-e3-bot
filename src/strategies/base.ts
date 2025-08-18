@@ -87,7 +87,10 @@ export abstract class BaseStrategy implements TradingStrategy {
   /**
    * Abstract method: Determine if current position should be exited
    */
-  public abstract shouldExit(position: Position, features: MarketFeatures): Promise<TradingDecision>;
+  public abstract shouldExit(
+    position: Position,
+    features: MarketFeatures
+  ): Promise<TradingDecision>;
 
   /**
    * Helper method: Create a trading decision
@@ -124,7 +127,7 @@ export abstract class BaseStrategy implements TradingStrategy {
    */
   protected validateFeatures(features: MarketFeatures): boolean {
     const requiredFields = ['price', 'volume', 'volatility', 'timestamp'];
-    
+
     for (const field of requiredFields) {
       if (!(field in features) || typeof features[field as keyof MarketFeatures] !== 'number') {
         return false;
@@ -150,9 +153,9 @@ export abstract class BaseStrategy implements TradingStrategy {
     const direction = decision.direction.toUpperCase();
     const confidence = (decision.confidence * 100).toFixed(1);
     const trigger = decision.trigger ? 'TRIGGER' : 'NO TRIGGER';
-    
+
     console.log(`${prefix} ${direction} (${confidence}%) - ${trigger}`);
-    
+
     if (decision.reasons.length > 0) {
       console.log(`${prefix} Reasons: ${decision.reasons.join(', ')}`);
     }
@@ -188,12 +191,14 @@ export abstract class BaseStrategy implements TradingStrategy {
       name: this.getName(),
       enabled: this.isEnabled(),
       parameters: this.config.parameters,
-      lastDecision: this.lastDecision ? {
-        direction: this.lastDecision.direction,
-        confidence: this.lastDecision.confidence,
-        trigger: this.lastDecision.trigger,
-        timestamp: this.lastDecision.timestamp,
-      } : null,
+      lastDecision: this.lastDecision
+        ? {
+            direction: this.lastDecision.direction,
+            confidence: this.lastDecision.confidence,
+            trigger: this.lastDecision.trigger,
+            timestamp: this.lastDecision.timestamp,
+          }
+        : null,
     };
   }
 

@@ -8,13 +8,7 @@ import { TradingRiskManager } from '@/risk/manager';
 import { SQLiteDatabaseProvider } from '@/data/database';
 import { loadConfig } from '@/config/index';
 import { logger } from '@/utils/logger';
-import type {
-  TradingDecision,
-  MarketFeatures,
-  Position,
-  PnLRecord,
-  AppConfig,
-} from '@/core/types';
+import type { TradingDecision, MarketFeatures, Position, PnLRecord, AppConfig } from '@/core/types';
 
 /**
  * Backtest configuration
@@ -65,7 +59,7 @@ export class BacktestEngine {
   private strategyManager!: StrategyManager;
   private riskManager!: TradingRiskManager;
   private database!: SQLiteDatabaseProvider;
-  
+
   private position: BacktestPosition = { side: 'flat', entryPrice: 0, size: 0, entryTime: 0 };
   private equity: number = 100000; // Default starting equity
   private trades: PnLRecord[] = [];
@@ -119,7 +113,9 @@ export class BacktestEngine {
       this.strategyManager.setActiveStrategy('e3');
       logger.info('BacktestEngine', '🎯 E3 strategy setup for backtest');
     } else if (strategyName.toLowerCase() === 'fundingfade' && this.config.strategies.fundingFade) {
-      const fundingFadeStrategy = this.strategyManager.createFundingFadeStrategy(this.config.strategies.fundingFade);
+      const fundingFadeStrategy = this.strategyManager.createFundingFadeStrategy(
+        this.config.strategies.fundingFade
+      );
       await fundingFadeStrategy.initialize();
       this.strategyManager.setActiveStrategy('fundingFade');
       logger.info('BacktestEngine', '💰 FundingFade strategy setup for backtest');
@@ -135,14 +131,17 @@ export class BacktestEngine {
     marketData: MarketFeatures[],
     backtestConfig: BacktestConfig
   ): Promise<BacktestMetrics> {
-    logger.info('BacktestEngine', `📊 Running backtest: ${backtestConfig.startDate} to ${backtestConfig.endDate}`);
-    
+    logger.info(
+      'BacktestEngine',
+      `📊 Running backtest: ${backtestConfig.startDate} to ${backtestConfig.endDate}`
+    );
+
     let tickCount = 0;
     const totalTicks = marketData.length;
 
     for (const features of marketData) {
       tickCount++;
-      
+
       // Log progress every 1000 ticks
       if (tickCount % 1000 === 0) {
         const progress = ((tickCount / totalTicks) * 100).toFixed(1);
@@ -151,7 +150,7 @@ export class BacktestEngine {
 
       // Process tick
       await this.processTick(features);
-      
+
       // Record equity curve
       this.equityCurve.push({
         timestamp: features.timestamp,
@@ -161,9 +160,12 @@ export class BacktestEngine {
 
     // Calculate final metrics
     const metrics = this.calculateMetrics();
-    
-    logger.info('BacktestEngine', `✅ Backtest complete: ${metrics.totalTrades} trades, ${metrics.totalPnL.toFixed(2)} PnL`);
-    
+
+    logger.info(
+      'BacktestEngine',
+      `✅ Backtest complete: ${metrics.totalTrades} trades, ${metrics.totalPnL.toFixed(2)} PnL`
+    );
+
     return metrics;
   }
 
@@ -215,7 +217,10 @@ export class BacktestEngine {
       entryTime: features.timestamp,
     };
 
-    logger.debug('BacktestEngine', `📈 Entry: ${decision.direction} at $${features.price.toFixed(4)}, size: $${positionSize.toFixed(2)}`);
+    logger.debug(
+      'BacktestEngine',
+      `📈 Entry: ${decision.direction} at $${features.price.toFixed(4)}, size: $${positionSize.toFixed(2)}`
+    );
 
     // Update strategy position state if it's E3
     const activeStrategy = this.strategyManager.getActiveStrategy();
@@ -276,7 +281,10 @@ export class BacktestEngine {
     // Update risk state
     this.riskManager.updateRiskState(pnl);
 
-    logger.debug('BacktestEngine', `📉 Exit: ${this.position.side} at $${features.price.toFixed(4)}, PnL: $${pnl.toFixed(2)}`);
+    logger.debug(
+      'BacktestEngine',
+      `📉 Exit: ${this.position.side} at $${features.price.toFixed(4)}, PnL: $${pnl.toFixed(2)}`
+    );
 
     // Clear position
     this.position = { side: 'flat', entryPrice: 0, size: 0, entryTime: 0 };
@@ -293,7 +301,7 @@ export class BacktestEngine {
    */
   private calculateUnrealizedPnl(currentPrice: number): number {
     if (this.position.side === 'flat') return 0;
-    
+
     const priceDiff = currentPrice - this.position.entryPrice;
     const multiplier = this.position.side === 'long' ? 1 : -1;
     return priceDiff * multiplier * (this.position.size / this.position.entryPrice);
@@ -305,20 +313,26 @@ export class BacktestEngine {
   private calculateMetrics(): BacktestMetrics {
     const winningTrades = this.trades.filter(t => t.pnlUsd > 0);
     const losingTrades = this.trades.filter(t => t.pnlUsd < 0);
-    
+
     const totalPnL = this.trades.reduce((sum, t) => sum + t.pnlUsd, 0);
     const winRate = this.trades.length > 0 ? (winningTrades.length / this.trades.length) * 100 : 0;
-    
-    const avgWin = winningTrades.length > 0 ? winningTrades.reduce((sum, t) => sum + t.pnlUsd, 0) / winningTrades.length : 0;
-    const avgLoss = losingTrades.length > 0 ? losingTrades.reduce((sum, t) => sum + t.pnlUsd, 0) / losingTrades.length : 0;
-    
+
+    const avgWin =
+      winningTrades.length > 0
+        ? winningTrades.reduce((sum, t) => sum + t.pnlUsd, 0) / winningTrades.length
+        : 0;
+    const avgLoss =
+      losingTrades.length > 0
+        ? losingTrades.reduce((sum, t) => sum + t.pnlUsd, 0) / losingTrades.length
+        : 0;
+
     const maxWin = winningTrades.length > 0 ? Math.max(...winningTrades.map(t => t.pnlUsd)) : 0;
     const maxLoss = losingTrades.length > 0 ? Math.min(...losingTrades.map(t => t.pnlUsd)) : 0;
-    
+
     // Calculate max drawdown
     let maxDrawdown = 0;
     let peak = this.equityCurve[0]?.equity || 0;
-    
+
     for (const point of this.equityCurve) {
       if (point.equity > peak) {
         peak = point.equity;
@@ -330,11 +344,13 @@ export class BacktestEngine {
     }
 
     // Simple Sharpe ratio calculation (assuming daily returns)
-    const returns = this.equityCurve.slice(1).map((point, i) => 
-      (point.equity - this.equityCurve[i].equity) / this.equityCurve[i].equity
-    );
+    const returns = this.equityCurve
+      .slice(1)
+      .map((point, i) => (point.equity - this.equityCurve[i].equity) / this.equityCurve[i].equity);
     const avgReturn = returns.reduce((sum, r) => sum + r, 0) / returns.length;
-    const returnStd = Math.sqrt(returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length);
+    const returnStd = Math.sqrt(
+      returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length
+    );
     const sharpeRatio = returnStd > 0 ? (avgReturn / returnStd) * Math.sqrt(252) : 0; // Annualized
 
     return {

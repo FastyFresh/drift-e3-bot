@@ -3,12 +3,7 @@
  * Handles position sizing, risk validation, and daily limits
  */
 
-import type {
-  RiskManager,
-  TradingDecision,
-  RiskParameters,
-  RiskError,
-} from '@/core/types';
+import type { RiskManager, TradingDecision, RiskParameters, RiskError } from '@/core/types';
 
 /**
  * Risk state tracking
@@ -85,7 +80,9 @@ export class TradingRiskManager implements RiskManager {
     // Check minimum confidence
     const minConfidence = 0.5; // Could be configurable
     if (decision.confidence < minConfidence) {
-      console.log(`🛑 Trade blocked: Confidence ${decision.confidence.toFixed(2)} < ${minConfidence}`);
+      console.log(
+        `🛑 Trade blocked: Confidence ${decision.confidence.toFixed(2)} < ${minConfidence}`
+      );
       return false;
     }
 
@@ -105,21 +102,23 @@ export class TradingRiskManager implements RiskManager {
   public calculatePositionSize(equity: number, confidence: number = 1.0): number {
     // Base position size from risk per trade
     const baseSize = (equity * this.parameters.riskPerTradePercent) / 100;
-    
+
     // Apply confidence scaling (0.5x to 1.5x based on confidence)
     const confidenceMultiplier = 0.5 + confidence;
     const adjustedSize = baseSize * confidenceMultiplier;
-    
+
     // Apply maximum position size limit
     const maxSize = Math.min(
       this.parameters.maxPositionSize,
       (equity * this.parameters.maxLeverage) / 100
     );
-    
+
     const finalSize = Math.min(adjustedSize, maxSize);
-    
-    console.log(`💰 Position sizing: Base=${baseSize.toFixed(2)}, Confidence=${confidence.toFixed(2)}, Final=${finalSize.toFixed(2)}`);
-    
+
+    console.log(
+      `💰 Position sizing: Base=${baseSize.toFixed(2)}, Confidence=${confidence.toFixed(2)}, Final=${finalSize.toFixed(2)}`
+    );
+
     return Math.max(0, finalSize);
   }
 
@@ -136,12 +135,12 @@ export class TradingRiskManager implements RiskManager {
    */
   public updateRiskState(pnl: number): void {
     this.checkAndResetDaily();
-    
+
     // Update daily stats
     this.state.dailyPnL += pnl;
     this.state.dailyTrades += 1;
     this.state.totalTrades += 1;
-    
+
     // Update win/loss tracking
     if (pnl > 0) {
       this.state.winningTrades += 1;
@@ -149,7 +148,7 @@ export class TradingRiskManager implements RiskManager {
     } else if (pnl < 0) {
       this.state.consecutiveLosses += 1;
     }
-    
+
     // Update drawdown tracking
     if (pnl < 0) {
       this.state.currentDrawdown += Math.abs(pnl);
@@ -157,8 +156,10 @@ export class TradingRiskManager implements RiskManager {
     } else if (pnl > 0) {
       this.state.currentDrawdown = Math.max(0, this.state.currentDrawdown - pnl);
     }
-    
-    console.log(`📊 Risk state updated: Daily PnL=${this.state.dailyPnL.toFixed(2)}, Consecutive losses=${this.state.consecutiveLosses}`);
+
+    console.log(
+      `📊 Risk state updated: Daily PnL=${this.state.dailyPnL.toFixed(2)}, Consecutive losses=${this.state.consecutiveLosses}`
+    );
   }
 
   /**
@@ -190,7 +191,7 @@ export class TradingRiskManager implements RiskManager {
   public getStatistics(): Record<string, any> {
     const state = this.getRiskState();
     const winRate = state.totalTrades > 0 ? (state.winningTrades / state.totalTrades) * 100 : 0;
-    
+
     return {
       dailyPnL: state.dailyPnL,
       dailyTrades: state.dailyTrades,
@@ -199,7 +200,8 @@ export class TradingRiskManager implements RiskManager {
       consecutiveLosses: state.consecutiveLosses,
       currentDrawdown: state.currentDrawdown,
       maxDrawdown: state.maxDrawdown,
-      dailyLossCapUsed: (Math.abs(Math.min(0, state.dailyPnL)) / this.parameters.dailyLossCapPercent) * 100,
+      dailyLossCapUsed:
+        (Math.abs(Math.min(0, state.dailyPnL)) / this.parameters.dailyLossCapPercent) * 100,
       parameters: this.parameters,
     };
   }
@@ -231,12 +233,14 @@ export class TradingRiskManager implements RiskManager {
   private checkDailyLossLimit(): boolean {
     const dailyLossLimit = this.parameters.dailyLossCapPercent;
     const currentLossPercent = Math.abs(Math.min(0, this.state.dailyPnL));
-    
+
     if (currentLossPercent >= dailyLossLimit) {
-      console.log(`🛑 Daily loss limit reached: ${currentLossPercent.toFixed(2)}% >= ${dailyLossLimit}%`);
+      console.log(
+        `🛑 Daily loss limit reached: ${currentLossPercent.toFixed(2)}% >= ${dailyLossLimit}%`
+      );
       return false;
     }
-    
+
     return true;
   }
 
@@ -245,12 +249,14 @@ export class TradingRiskManager implements RiskManager {
    */
   private checkMaxDrawdown(): boolean {
     const maxDrawdownLimit = this.parameters.dailyLossCapPercent * 3; // 3x daily limit
-    
+
     if (this.state.currentDrawdown >= maxDrawdownLimit) {
-      console.log(`🛑 Maximum drawdown exceeded: ${this.state.currentDrawdown.toFixed(2)} >= ${maxDrawdownLimit}`);
+      console.log(
+        `🛑 Maximum drawdown exceeded: ${this.state.currentDrawdown.toFixed(2)} >= ${maxDrawdownLimit}`
+      );
       return false;
     }
-    
+
     return true;
   }
 
@@ -259,12 +265,14 @@ export class TradingRiskManager implements RiskManager {
    */
   private checkConsecutiveLosses(): boolean {
     const maxConsecutiveLosses = 5; // Could be configurable
-    
+
     if (this.state.consecutiveLosses >= maxConsecutiveLosses) {
-      console.log(`🛑 Too many consecutive losses: ${this.state.consecutiveLosses} >= ${maxConsecutiveLosses}`);
+      console.log(
+        `🛑 Too many consecutive losses: ${this.state.consecutiveLosses} >= ${maxConsecutiveLosses}`
+      );
       return false;
     }
-    
+
     return true;
   }
 
@@ -286,14 +294,14 @@ export class TradingRiskManager implements RiskManager {
   ): number {
     const riskAmount = (equity * this.parameters.riskPerTradePercent) / 100;
     const priceRisk = Math.abs(entryPrice - stopLossPrice);
-    
+
     if (priceRisk === 0) {
       return this.calculatePositionSize(equity, confidence);
     }
-    
+
     const baseSize = riskAmount / priceRisk;
     const confidenceAdjusted = baseSize * (0.5 + confidence);
-    
+
     return Math.min(confidenceAdjusted, this.parameters.maxPositionSize);
   }
 

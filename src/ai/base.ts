@@ -95,7 +95,7 @@ export abstract class BaseAIProvider implements AIProvider {
    */
   protected validateFeatures(features: MarketFeatures): boolean {
     const requiredFields = ['price', 'volume', 'volatility', 'timestamp'];
-    
+
     for (const field of requiredFields) {
       if (!(field in features) || typeof features[field as keyof MarketFeatures] !== 'number') {
         return false;
@@ -122,9 +122,9 @@ export abstract class BaseAIProvider implements AIProvider {
     const direction = decision.direction.toUpperCase();
     const confidence = (decision.confidence * 100).toFixed(1);
     const trigger = decision.trigger ? 'TRIGGER' : 'NO TRIGGER';
-    
+
     console.log(`${prefix} ${direction} (${confidence}%) - ${trigger}`);
-    
+
     if (decision.reasons.length > 0) {
       console.log(`${prefix} Reasons: ${decision.reasons.join(', ')}`);
     }
@@ -138,8 +138,11 @@ export abstract class BaseAIProvider implements AIProvider {
     confidence: number;
     reasoning: string[];
   } {
-    const lines = response.toLowerCase().split('\n').map(line => line.trim());
-    
+    const lines = response
+      .toLowerCase()
+      .split('\n')
+      .map(line => line.trim());
+
     let direction: TradingDirection = 'flat';
     let confidence = 0.5;
     const reasoning: string[] = [];
@@ -197,17 +200,19 @@ Market Analysis Data:
    */
   public getStatistics(): Record<string, any> {
     const modelInfo = this.getModelInfo();
-    
+
     return {
       modelName: modelInfo.name,
       modelVersion: modelInfo.version,
       config: this.config,
-      lastDecision: this.lastDecision ? {
-        direction: this.lastDecision.direction,
-        confidence: this.lastDecision.confidence,
-        trigger: this.lastDecision.trigger,
-        timestamp: this.lastDecision.timestamp,
-      } : null,
+      lastDecision: this.lastDecision
+        ? {
+            direction: this.lastDecision.direction,
+            confidence: this.lastDecision.confidence,
+            trigger: this.lastDecision.trigger,
+            timestamp: this.lastDecision.timestamp,
+          }
+        : null,
     };
   }
 

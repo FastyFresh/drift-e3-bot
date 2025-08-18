@@ -4,7 +4,12 @@
 
 // Trading Decision Types
 export type TradingDirection = 'long' | 'short' | 'flat';
-export type ExitReason = 'take_profit' | 'stop_loss' | 'trailing_stop' | 'strategy_exit' | 'time_stop';
+export type ExitReason =
+  | 'take_profit'
+  | 'stop_loss'
+  | 'trailing_stop'
+  | 'strategy_exit'
+  | 'time_stop';
 
 // Market Data Types
 export interface MarketFeatures {
@@ -186,7 +191,7 @@ export interface EventEmitter {
 export type Awaitable<T> = T | Promise<T>;
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type RequiredKeys<T> = {
-  [K in keyof T]-?: {} extends Pick<T, K> ? never : K;
+  [K in keyof T]-?: Record<string, never> extends Pick<T, K> ? never : K;
 }[keyof T];
 
 // Error Types

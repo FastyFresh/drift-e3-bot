@@ -69,13 +69,13 @@ export class StrategyManager {
    */
   public getEnabledStrategies(): Map<string, TradingStrategy> {
     const enabled = new Map<string, TradingStrategy>();
-    
+
     for (const [name, strategy] of this.strategies) {
       if (strategy.getConfig().enabled) {
         enabled.set(name, strategy);
       }
     }
-    
+
     return enabled;
   }
 
@@ -121,7 +121,7 @@ export class StrategyManager {
    */
   public async analyzeMarket(features: MarketFeatures): Promise<TradingDecision | null> {
     const activeStrategy = this.getActiveStrategy();
-    
+
     if (!activeStrategy) {
       console.warn('⚠️ No active strategy set');
       return null;
@@ -143,7 +143,7 @@ export class StrategyManager {
     features: MarketFeatures
   ): Promise<TradingDecision | null> {
     const activeStrategy = this.getActiveStrategy();
-    
+
     if (!activeStrategy) {
       console.warn('⚠️ No active strategy set');
       return null;
@@ -160,7 +160,9 @@ export class StrategyManager {
   /**
    * Analyze market with all enabled strategies
    */
-  public async analyzeWithAllStrategies(features: MarketFeatures): Promise<Map<string, TradingDecision>> {
+  public async analyzeWithAllStrategies(
+    features: MarketFeatures
+  ): Promise<Map<string, TradingDecision>> {
     const results = new Map<string, TradingDecision>();
     const enabledStrategies = this.getEnabledStrategies();
 
@@ -181,7 +183,7 @@ export class StrategyManager {
    */
   public async getConsensusDecision(features: MarketFeatures): Promise<TradingDecision | null> {
     const decisions = await this.analyzeWithAllStrategies(features);
-    
+
     if (decisions.size === 0) {
       return null;
     }
@@ -216,9 +218,10 @@ export class StrategyManager {
     if (votes.long === maxVotes) consensusDirection = 'long';
     else if (votes.short === maxVotes) consensusDirection = 'short';
 
-    const avgConfidence = consensusDirection !== 'flat' 
-      ? confidenceSum[consensusDirection] / votes[consensusDirection]
-      : 0;
+    const avgConfidence =
+      consensusDirection !== 'flat'
+        ? confidenceSum[consensusDirection] / votes[consensusDirection]
+        : 0;
 
     return {
       direction: consensusDirection,
@@ -235,7 +238,7 @@ export class StrategyManager {
    */
   public async initializeAll(): Promise<void> {
     console.log('🚀 Initializing all strategies...');
-    
+
     for (const [name, strategy] of this.strategies) {
       try {
         await strategy.initialize();
@@ -250,7 +253,7 @@ export class StrategyManager {
    */
   public async cleanupAll(): Promise<void> {
     console.log('🧹 Cleaning up all strategies...');
-    
+
     for (const [name, strategy] of this.strategies) {
       try {
         await strategy.cleanup();
@@ -272,7 +275,7 @@ export class StrategyManager {
 
     strategy.setEnabled(enabled);
     console.log(`${enabled ? '✅' : '❌'} Strategy ${name} ${enabled ? 'enabled' : 'disabled'}`);
-    
+
     // If disabling the active strategy, clear it
     if (!enabled && this.activeStrategy === name) {
       this.activeStrategy = null;
@@ -302,7 +305,7 @@ export class StrategyManager {
    */
   public getAllStatistics(): Record<string, any> {
     const stats: Record<string, any> = {};
-    
+
     for (const [name, strategy] of this.strategies) {
       stats[name] = strategy.getStatistics();
     }
