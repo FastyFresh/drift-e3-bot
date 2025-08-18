@@ -5,6 +5,8 @@ import { initDrift, placePerpIocByNotional, getEquityUsd, getOpenPosition } from
 import { getE3Features } from "./marketData";
 import { e3Decision } from "./strategy/e3";
 import { cooldownOk, checkDailyLossCap, positionSizeUsd, riskState, calcAtrStopDist, calcRLevels, onTradeClose } from "./risk";
+import fs from "fs";
+import path from "path";
 
 async function sleep(ms: number) {
   return new Promise((res) => setTimeout(res, ms));
@@ -104,10 +106,44 @@ async function manageExits(drift: any, market: any, position: any, equityUsd: nu
   }
 }
 
+function loadOptimalConfig() {
+  try {
+    const configPath = path.join(process.cwd(), "config", "optimal-e3-explosive.json");
+    if (fs.existsSync(configPath)) {
+      const optimalConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      const thresholds = optimalConfig.parameters;
+
+      // Load optimal parameters into global CONFIG for E3 strategy
+      (global as any).CONFIG = {
+        ...CONFIG,
+        thresholds: thresholds
+      };
+
+      console.log("✅ Loaded optimal E3 configuration:");
+      console.log(`   📊 bodyOverAtr: ${thresholds.bodyOverAtr}`);
+      console.log(`   📈 volumeZ: ${thresholds.volumeZ}`);
+      console.log(`   💰 premiumPct: ${thresholds.premiumPct}`);
+      console.log(`   📉 realizedVol: ${thresholds.realizedVol}`);
+      console.log(`   📏 spreadBps: ${thresholds.spreadBps}`);
+
+      return true;
+    } else {
+      console.warn("⚠️  Optimal config not found, using default thresholds");
+      return false;
+    }
+  } catch (error) {
+    console.error("❌ Error loading optimal config:", error);
+    return false;
+  }
+}
+
 async function main() {
   console.log("Starting Drift E3 bot…");
 
   initDB();
+
+  // Load optimal configuration parameters
+  loadOptimalConfig();
 
   const model = await getModelName();
   console.log("AI model:", model);
@@ -174,6 +210,13 @@ async function main() {
         prompt: ai.prompt,
         llmResponse: ai.rawResponse,
       });
+
+      // Debug E3 trigger conditions every 30 seconds
+      if (now - lastEquityLog > 30000 && !e3.trigger) {
+        console.log(`🔍 E3 Debug - Why NO TRIGGER:`);
+        console.log(`   Reasons: ${e3.reasons.join(", ")}`);
+        console.log(`   Current: bodyOverAtr=${features.bodyOverAtr?.toFixed(3)}, volumeZ=${features.volumeZ?.toFixed(3)}, realizedVol=${features.realizedVol?.toFixed(3)}, spreadBps=${features.spreadBps?.toFixed(1)}`);
+      }
 
       // Only enter new positions if no current position
       if (
