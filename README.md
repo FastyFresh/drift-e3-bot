@@ -64,13 +64,20 @@ Current Version: **v0.8.0** - Enhanced Risk Management, Leverage Optimization & 
 - **Organized Scripts**: Categorized npm scripts for all operations
 - **Quality Assurance**: Automated formatting and error detection
 
-### **🏗️ Modular Architecture (NEW!)**
+### **🏗️ Modular Architecture**
 - **Core Types System**: Comprehensive TypeScript interfaces and error handling
 - **Strategy Framework**: Pluggable trading strategies with BaseStrategy foundation
 - **Risk Management**: Advanced position sizing, daily limits, drawdown protection
 - **Data Layer**: Abstracted database and market data providers with caching
 - **AI Integration**: Modular AI providers with Ollama support and retry mechanisms
 - **Configuration Management**: Centralized config with Zod validation
+
+### **🚀 Integrated Trading Engine (NEW!)**
+- **MainTradingEngine**: Complete orchestration of all modular components
+- **Multi-Strategy Support**: E3 and FundingFade strategies with active selection
+- **Real-Time Integration**: Live market data, equity monitoring, and position tracking
+- **Legacy Compatibility**: New architecture alongside existing functionality
+- **Comprehensive Logging**: Structured logging with component-based filtering
 
 ---
 

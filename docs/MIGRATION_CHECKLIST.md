@@ -5,9 +5,9 @@
 ### **🔴 Files to Remove (After Integration)**
 
 #### **Strategy Files**
-- [ ] `src/strategy/e3.ts` → Migrated to `src/strategies/e3/index.ts`
-- [ ] `src/strategy/fundingFade.ts` → Needs migration to new architecture
-- [ ] Remove `src/strategy/` directory
+- [x] `src/strategy/e3.ts` → Migrated to `src/strategies/e3/index.ts`
+- [x] `src/strategy/fundingFade.ts` → Migrated to `src/strategies/fundingFade/index.ts`
+- [ ] Remove `src/strategy/` directory (after final validation)
 
 #### **Configuration Files**
 - [ ] `src/config.ts` → Migrated to `src/config/index.ts`
@@ -32,11 +32,12 @@
 ### **🟡 Files to Integrate (Phase 3)**
 
 #### **Core Trading Files**
-- [ ] `src/engine.ts` → Integrate with new architecture
+- [x] `src/engine.ts` → New MainTradingEngine created (`src/core/engine.ts`)
+- [x] `src/main.ts` → New main entry point created
+- [x] `src/marketData.ts` → Integrated with new market data provider
+- [x] `src/drift.ts` → Integrated with new data layer (equity and price functions)
 - [ ] `src/backtest.ts` → Update to use new components
 - [ ] `src/optimize.ts` → Update to use new strategy manager
-- [ ] `src/drift.ts` → Integrate with new data layer
-- [ ] `src/marketData.ts` → Integrate with new market data provider
 - [ ] `src/aiGate.ts` → Integrate with new AI provider system
 
 #### **Analysis Files**
@@ -46,12 +47,15 @@
 
 ### **🟢 Files Already Migrated**
 - [x] Core types system (`src/core/types.ts`)
-- [x] Strategy framework (`src/strategies/`)
+- [x] Strategy framework (`src/strategies/`) - E3 + FundingFade
 - [x] Risk management (`src/risk/`)
-- [x] Data layer (`src/data/`)
+- [x] Data layer (`src/data/`) - Database + Market data integration
 - [x] AI providers (`src/ai/`)
 - [x] Configuration management (`src/config/`)
 - [x] Utilities (`src/utils/`)
+- [x] Main trading engine (`src/core/engine.ts`)
+- [x] New main entry point (`src/main.ts`)
+- [x] Package.json scripts updated
 
 ## 🧹 **Cleanup Tasks**
 

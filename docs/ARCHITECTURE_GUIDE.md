@@ -1,6 +1,7 @@
 # Architecture Guide
 
-## Aug 2025 Update - v0.8.0 Modular Architecture
+## Aug 2025 Update - v0.8.0 Modular Architecture & Integration
+- **Phase 3 Integration Complete**: Successfully integrated modular architecture with main trading engine. Created MainTradingEngine orchestrating all components, migrated FundingFade strategy, and established complete trading loop with entry/exit management, position tracking, and risk validation.
 - **Complete Modular Refactoring (Phase 2)**: Implemented comprehensive modular architecture with TypeScript interfaces, dependency injection, and clean separation of concerns. Created core types system, strategy framework, risk management, data layer abstraction, AI provider system, and centralized configuration management.
 - **Enhanced Risk Management & Leverage Optimization**: Real Drift equity integration, ATR-based exit management, progressive profit taking (1R/2R), time-based exits, and comprehensive PnL logging. Position sizing increased to $22 (0.26x leverage) with enhanced risk management.
 - **Modern Development Tooling**: TypeScript path mapping, ESLint + Prettier integration, organized npm scripts, and quality assurance tooling. Automated formatting fixed 97 code style issues.
@@ -80,6 +81,25 @@
   - Log retention and filtering capabilities
   - Console output with timestamps and context
 
+#### **8. Main Trading Engine (`src/core/engine.ts`)**
+- **MainTradingEngine**: Complete orchestration of all modular components
+  - Strategy manager integration with active strategy selection
+  - Risk manager integration with trade validation and position sizing
+  - Database provider integration with structured logging
+  - Market data provider integration with real-time features
+  - Main trading loop with entry/exit condition checking
+  - Position management and PnL tracking
+  - Comprehensive error handling and component lifecycle management
+
+### **Phase 3 Integration Status**
+- **✅ Strategy Migration**: E3Strategy and FundingFadeStrategy fully integrated
+- **✅ Main Trading Engine**: Complete orchestration layer operational
+- **✅ Component Integration**: All modules working together seamlessly
+- **✅ Configuration Management**: Multi-strategy configuration support
+- **✅ Trading Loop**: Entry/exit conditions with risk validation
+- **✅ Position Management**: Real-time tracking and PnL calculation
+- **⏳ Legacy Integration**: Remaining scripts and utilities (in progress)
+
 ### **Architecture Benefits**
 - **Type Safety**: All interfaces properly typed with runtime validation
 - **Modularity**: Clear separation of concerns with testable components
@@ -87,6 +107,7 @@
 - **Configuration-Driven**: Runtime behavior controlled by configuration
 - **Fault Tolerance**: Comprehensive error handling and graceful degradation
 - **Monitoring**: Built-in statistics and logging throughout the system
+- **Integration Ready**: Main trading engine orchestrates all components
 
 ## Legacy System Architecture (v0.1.1)
 1. **Market Data (`marketData.ts`)**

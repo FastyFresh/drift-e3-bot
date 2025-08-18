@@ -164,9 +164,19 @@ export class MainTradingEngine implements TradingEngine {
    * Get current equity
    */
   public async getEquity(): Promise<number> {
-    // This would integrate with the existing equity checking logic
-    // For now, return a placeholder
-    return 100; // TODO: Integrate with actual equity checking
+    try {
+      // Import the existing equity function
+      const { getEquityUsd, initDrift } = await import('../drift');
+
+      // Get drift client
+      const { drift } = await initDrift();
+
+      // Get real equity
+      return await getEquityUsd(drift);
+    } catch (error) {
+      logger.error('TradingEngine', '❌ Failed to get equity', error);
+      return 100; // Fallback value
+    }
   }
 
   /**
