@@ -164,8 +164,15 @@ export class ConfigManager {
       };
     }
 
-    // Load other strategy configs as needed
-    // strategies.fundingFade = this.loadFundingFadeConfig();
+    // Load funding fade strategy config
+    const fundingFadeConfig = this.loadFundingFadeConfig();
+    if (fundingFadeConfig) {
+      strategies.fundingFade = {
+        name: 'FundingFade',
+        parameters: fundingFadeConfig,
+        enabled: false, // Disabled by default
+      };
+    }
 
     return strategies;
   }
@@ -183,7 +190,7 @@ export class ConfigManager {
     } catch (error) {
       console.warn('Failed to load E3 optimal config:', error);
     }
-    
+
     // Default E3 parameters
     return {
       bodyOverAtr: 0.5,
@@ -191,6 +198,33 @@ export class ConfigManager {
       premiumPct: 0.002,
       realizedVol: 3.0,
       spreadBps: 30,
+    };
+  }
+
+  /**
+   * Load funding fade configuration
+   */
+  private loadFundingFadeConfig(): Record<string, number> | null {
+    try {
+      const configPath = path.join(process.cwd(), 'config', 'optimize-fundingfade.json');
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        return config.parameters || {};
+      }
+    } catch (error) {
+      console.warn('Failed to load FundingFade config:', error);
+    }
+
+    // Default FundingFade parameters
+    return {
+      fundingRate: 0.0001, // 0.01%
+      premiumPct: 0.005, // 0.5%
+      spreadBps: 30,
+      volumeZ: 1.0,
+      takeProfitPct: 0.015, // 1.5%
+      stopLossPct: 0.01, // 1%
+      fundingNormalizeThreshold: 0.00005, // 0.005%
+      premiumNormalizeThreshold: 0.001, // 0.1%
     };
   }
 

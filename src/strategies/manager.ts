@@ -11,6 +11,7 @@ import type {
   StrategyConfig,
 } from '@/core/types';
 import { E3Strategy } from '@/strategies/e3';
+import { FundingFadeStrategy } from '@/strategies/fundingFade';
 
 /**
  * Strategy Manager Class
@@ -37,6 +38,15 @@ export class StrategyManager {
   public createE3Strategy(config: StrategyConfig): E3Strategy {
     const strategy = new E3Strategy(config);
     this.registerStrategy('e3', strategy);
+    return strategy;
+  }
+
+  /**
+   * Create and register Funding Fade strategy
+   */
+  public createFundingFadeStrategy(config: StrategyConfig): FundingFadeStrategy {
+    const strategy = new FundingFadeStrategy(config);
+    this.registerStrategy('fundingFade', strategy);
     return strategy;
   }
 

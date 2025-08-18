@@ -8,6 +8,7 @@ export { BaseStrategy } from './base';
 
 // Strategy implementations
 export { E3Strategy } from './e3';
+export { FundingFadeStrategy } from './fundingFade';
 
 // Strategy manager
 export { StrategyManager } from './manager';
