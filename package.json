@@ -11,7 +11,12 @@
     "dashboard": "./dashboard/start-dashboard.sh",
     "dashboard:backend": "cd dashboard/backend && npm run dev",
     "dashboard:frontend": "cd dashboard/frontend && npm start",
-    "dashboard:build": "cd dashboard/backend && npm run build && cd ../frontend && npm run build"
+    "dashboard:build": "cd dashboard/backend && npm run build && cd ../frontend && npm run build",
+    "training:setup": "python3 -m venv training_env && source training_env/bin/activate && pip install -r training/requirements.txt",
+    "training:prepare": "source training_env/bin/activate && python training/scripts/prepare_data.py",
+    "training:train": "source training_env/bin/activate && python training/scripts/train_lora.py",
+    "training:evaluate": "source training_env/bin/activate && python training/scripts/evaluate_model.py",
+    "training:all": "npm run training:prepare && npm run training:train && npm run training:evaluate"
   },
   "dependencies": {
     "@drift-labs/sdk": "^2.134.0",
