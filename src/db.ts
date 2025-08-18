@@ -143,9 +143,10 @@ export function initDB() {
   db.prepare(
     `CREATE TABLE IF NOT EXISTS pnl (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      tradeId INTEGER,
-      pnl REAL,
-      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+      ts DATETIME DEFAULT CURRENT_TIMESTAMP,
+      symbol TEXT,
+      pnlUsd REAL,
+      reason TEXT
     )`
   ).run();
 
@@ -162,11 +163,17 @@ export function initDB() {
     ensureColumn('orders', 'notionalUsd', 'REAL');
     ensureColumn('orders', 'timestamp', 'DATETIME');
 
-    ensureColumn('pnl', 'tradeId', 'INTEGER');
-    ensureColumn('pnl', 'pnl', 'REAL');
-    ensureColumn('pnl', 'timestamp', 'DATETIME');
+    ensureColumn('pnl', 'ts', 'DATETIME');
+    ensureColumn('pnl', 'symbol', 'TEXT');
+    ensureColumn('pnl', 'pnlUsd', 'REAL');
+    ensureColumn('pnl', 'reason', 'TEXT');
     ensureColumn('signals', 'prompt', 'TEXT');
     ensureColumn('signals', 'llmResponse', 'TEXT');
+
+    // Create indexes for performance (idempotent)
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_signals_ts ON signals(timestamp)`).run();
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_orders_ts ON orders(timestamp)`).run();
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_pnl_ts ON pnl(ts)`).run();
   } catch (error) {
     console.warn("Database initialization error:", error);
   }
@@ -215,16 +222,16 @@ export function logOrder(obj: { side: string; size: number; price: number; notio
   }
 }
 
-export function logPnl(obj: { tradeId: number; pnl: number }) {
+export function logPnl(obj: { symbol: string; pnlUsd: number; reason: string }) {
   if (!db) {
-    console.log(`💰 PnL: Trade ${obj.tradeId} = ${obj.pnl}`);
+    console.log(`💰 PnL: ${obj.symbol} ${obj.reason} = $${obj.pnlUsd.toFixed(2)}`);
     return;
   }
   try {
     db.prepare(
-      `INSERT INTO pnl (tradeId, pnl) VALUES (?, ?)`
-    ).run(obj.tradeId, obj.pnl);
+      `INSERT INTO pnl (symbol, pnlUsd, reason) VALUES (?, ?, ?)`
+    ).run(obj.symbol, obj.pnlUsd, obj.reason);
   } catch (error) {
-    console.log(`💰 PnL: Trade ${obj.tradeId} = ${obj.pnl}`);
+    console.log(`💰 PnL: ${obj.symbol} ${obj.reason} = $${obj.pnlUsd.toFixed(2)}`);
   }
 }
