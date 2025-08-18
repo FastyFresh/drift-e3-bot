@@ -1,7 +1,7 @@
 # Drift E3 Bot
 
 A trading bot for **Drift Protocol** with backtesting and parameter optimization, specialized in capturing **explosive 1-minute price movements**.
-Current Version: **v0.7.0** - Now with Professional Trading Dashboard!
+Current Version: **v0.7.1** - Production Ready & Live Trading!
 
 ---
 
@@ -14,6 +14,15 @@ Current Version: **v0.7.0** - Now with Professional Trading Dashboard!
 - **Optimal for high-volatility periods** (ETF rumors, institutional activity)
 
 **Optimal Configuration**: `config/optimal-e3-explosive.json`
+
+## 🔴 **LIVE TRADING STATUS**
+
+**Bot is currently LIVE and monitoring markets!**
+- ✅ **Status**: Active and generating real-time signals
+- ✅ **Capital**: $137 USDC with conservative $12 position sizing
+- ✅ **Market**: SOL-PERP (optimal for explosive moves)
+- ✅ **AI Model**: qwen2.5:7b-instruct via Ollama
+- ✅ **Safety**: Waiting for optimal explosive move conditions
 
 ---
 
