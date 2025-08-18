@@ -68,19 +68,74 @@ npm run dashboard:build   # Build dashboard
 ```
 drift-e3-bot/
 ├── src/                    # TypeScript source code
-│   ├── core/              # Core trading engine (planned)
-│   ├── strategies/        # Trading strategies
-│   ├── risk/              # Risk management (planned)
-│   ├── data/              # Data providers
-│   ├── ai/                # AI/ML components (planned)
-│   ├── config/            # Configuration (planned)
-│   └── utils/             # Utilities (planned)
+│   ├── core/              # Core types and interfaces ✅
+│   ├── strategies/        # Trading strategies framework ✅
+│   │   ├── base.ts        # BaseStrategy abstract class
+│   │   ├── e3/            # E3 strategy implementation
+│   │   ├── manager.ts     # Strategy coordination
+│   │   └── index.ts       # Strategy exports
+│   ├── risk/              # Risk management system ✅
+│   │   ├── manager.ts     # TradingRiskManager
+│   │   └── index.ts       # Risk exports
+│   ├── data/              # Data layer abstraction ✅
+│   │   ├── database.ts    # SQLiteDatabaseProvider
+│   │   ├── market.ts      # DriftMarketDataProvider
+│   │   └── index.ts       # Data exports
+│   ├── ai/                # AI provider system ✅
+│   │   ├── base.ts        # BaseAIProvider abstract class
+│   │   ├── ollama.ts      # OllamaAIProvider
+│   │   └── index.ts       # AI exports
+│   ├── config/            # Configuration management ✅
+│   │   └── index.ts       # ConfigManager with Zod validation
+│   └── utils/             # Utilities ✅
+│       ├── logger.ts      # Enhanced logging system
+│       └── index.ts       # Utility exports
 ├── training/              # LoRA training infrastructure
 ├── dashboard/             # Web dashboard
 ├── config/                # Strategy configurations
 ├── docs/                  # Documentation
 └── var/                   # Runtime data (databases, logs)
 ```
+
+## 🏗️ **Modular Architecture**
+
+### **Core Components**
+
+#### **Core Types (`src/core/types.ts`)**
+- Comprehensive TypeScript interfaces for all trading components
+- Custom error classes: `TradingError`, `RiskError`, `MarketDataError`
+- Type definitions: `MarketFeatures`, `TradingDecision`, `Position`, `PnLRecord`
+- Configuration types: `AppConfig`, `TradingConfig`, `DatabaseConfig`, `AIConfig`
+
+#### **Strategy System (`src/strategies/`)**
+- `BaseStrategy`: Abstract foundation for all trading strategies
+- `E3Strategy`: Refactored E3 implementation using new architecture
+- `StrategyManager`: Multi-strategy coordination and consensus decisions
+- Pluggable design for easy strategy addition
+
+#### **Risk Management (`src/risk/`)**
+- `TradingRiskManager`: Position sizing, daily limits, drawdown protection
+- Confidence-based position scaling
+- Consecutive loss tracking and circuit breakers
+- Real-time risk state monitoring
+
+#### **Data Layer (`src/data/`)**
+- `SQLiteDatabaseProvider`: Structured logging with performance indexes
+- `DriftMarketDataProvider`: Real-time market data with subscriptions
+- Caching and validation for market features
+- Statistics and monitoring capabilities
+
+#### **AI Integration (`src/ai/`)**
+- `BaseAIProvider`: Abstract foundation for AI implementations
+- `OllamaAIProvider`: Ollama integration with retry mechanisms
+- Structured prompt building and response parsing
+- Model management and availability checking
+
+#### **Configuration (`src/config/`)**
+- `ConfigManager`: Centralized configuration with Zod validation
+- Environment variable loading with defaults
+- Strategy parameter management
+- Runtime configuration updates
 
 ## 🎯 **TypeScript Configuration**
 

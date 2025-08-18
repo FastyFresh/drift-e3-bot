@@ -57,12 +57,20 @@ Current Version: **v0.8.0** - Enhanced Risk Management, Leverage Optimization & 
 - **Complete Pipeline**: Data prep, training, evaluation, integration
 - **Documentation**: Comprehensive setup and usage guides
 
-### **🛠️ Modern Development Tooling (NEW!)**
+### **🛠️ Modern Development Tooling**
 - **TypeScript Enhancement**: Path mapping, strict typing, modern ES2022
 - **Code Quality**: ESLint + Prettier integration with auto-formatting
 - **Development Workflow**: Type checking, linting, building, testing
 - **Organized Scripts**: Categorized npm scripts for all operations
 - **Quality Assurance**: Automated formatting and error detection
+
+### **🏗️ Modular Architecture (NEW!)**
+- **Core Types System**: Comprehensive TypeScript interfaces and error handling
+- **Strategy Framework**: Pluggable trading strategies with BaseStrategy foundation
+- **Risk Management**: Advanced position sizing, daily limits, drawdown protection
+- **Data Layer**: Abstracted database and market data providers with caching
+- **AI Integration**: Modular AI providers with Ollama support and retry mechanisms
+- **Configuration Management**: Centralized config with Zod validation
 
 ---
 

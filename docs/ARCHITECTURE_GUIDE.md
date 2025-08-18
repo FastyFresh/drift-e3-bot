@@ -1,6 +1,9 @@
 # Architecture Guide
 
-## Aug 2025 Update
+## Aug 2025 Update - v0.8.0 Modular Architecture
+- **Complete Modular Refactoring (Phase 2)**: Implemented comprehensive modular architecture with TypeScript interfaces, dependency injection, and clean separation of concerns. Created core types system, strategy framework, risk management, data layer abstraction, AI provider system, and centralized configuration management.
+- **Enhanced Risk Management & Leverage Optimization**: Real Drift equity integration, ATR-based exit management, progressive profit taking (1R/2R), time-based exits, and comprehensive PnL logging. Position sizing increased to $22 (0.26x leverage) with enhanced risk management.
+- **Modern Development Tooling**: TypeScript path mapping, ESLint + Prettier integration, organized npm scripts, and quality assurance tooling. Automated formatting fixed 97 code style issues.
 - **Memory-Efficient Optimizer (v0.6.5)**: Completely refactored `src/optimize.ts` to solve memory issues that prevented comprehensive parameter sweeps. Implemented chunked processing (configurable chunk sizes), progress tracking with resumption capability, garbage collection monitoring, and memory usage logging. Added new npm scripts with increased memory allocation and garbage collection flags. Successfully tested 48 parameter sets without crashes, enabling systematic discovery of optimal profitable parameters.
 - **E3 Strategy Critical Fix (v0.6.4)**: Fixed major logic bug in `src/strategy/e3.ts` where `shouldEnter` method was not properly evaluating all conditions. The strategy was always triggering regardless of volume Z-score, order book imbalance, or funding rate thresholds. After fix: strategy now generates 60,000+ realistic trades over 7+ months with profitable parameter sets achieving +4.39 PnL.
 - **Strategy Layer**: E3 baseline moved into **high-trade mode** for testing backtest infrastructure.
@@ -9,7 +12,83 @@
 - **Roadmap**: Overlay regimes in `visualize.ts`, introduce Funding & Premium Skew Fade strategy, and integrate AI for parameter tuning across 2023–2025 tests.
 
 
-## Updated System Architecture (v0.1.1)
+## Modular System Architecture (v0.8.0)
+
+### **Core Architecture Components**
+
+#### **1. Core Types System (`src/core/types.ts`)**
+- **Comprehensive TypeScript Interfaces**: All trading components implement well-defined contracts
+- **Custom Error Classes**: `TradingError`, `RiskError`, `MarketDataError`, `StrategyError` with context
+- **Data Types**: `MarketFeatures`, `TradingDecision`, `Position`, `PnLRecord`, `TradeExecution`
+- **Configuration Types**: `AppConfig`, `TradingConfig`, `DatabaseConfig`, `AIConfig`, `RiskParameters`
+- **Provider Interfaces**: `TradingStrategy`, `RiskManager`, `MarketDataProvider`, `AIProvider`, `DatabaseProvider`
+
+#### **2. Strategy Framework (`src/strategies/`)**
+- **BaseStrategy**: Abstract foundation implementing `TradingStrategy` interface
+  - Common functionality: parameter management, decision creation, logging helpers
+  - Lifecycle management: initialize, cleanup, reset, statistics
+  - Validation and confidence normalization utilities
+- **E3Strategy**: Refactored implementation using new architecture
+  - Position state tracking with trailing stops
+  - Parameter-driven thresholds from configuration
+  - Enhanced exit management (take profit, stop loss, trailing stops)
+  - Confidence calculation for big move prediction
+- **StrategyManager**: Multi-strategy coordination
+  - Active strategy selection and execution
+  - Consensus decision making across multiple strategies
+  - Strategy lifecycle management and statistics aggregation
+
+#### **3. Risk Management (`src/risk/`)**
+- **TradingRiskManager**: Comprehensive risk control system
+  - Position sizing with confidence-based scaling (0.5x to 1.5x multiplier)
+  - Daily loss limits and consecutive loss tracking
+  - Maximum drawdown protection and circuit breakers
+  - Real-time risk state monitoring and statistics
+  - Risk-adjusted position sizing based on stop loss levels
+
+#### **4. Data Layer (`src/data/`)**
+- **SQLiteDatabaseProvider**: Structured logging with performance optimization
+  - Separate tables for signals, orders, and PnL with indexes
+  - Statistics aggregation and recent trade retrieval
+  - Graceful degradation with console logging fallback
+- **DriftMarketDataProvider**: Real-time market data abstraction
+  - Subscription-based data distribution to multiple consumers
+  - Market data caching with age validation
+  - Feature validation and error handling
+
+#### **5. AI Integration (`src/ai/`)**
+- **BaseAIProvider**: Abstract foundation for AI implementations
+  - Structured prompt building and response parsing
+  - Decision creation and validation utilities
+  - Statistics and lifecycle management
+- **OllamaAIProvider**: Ollama integration with enterprise features
+  - Retry mechanisms with exponential backoff
+  - Connection testing and model availability checking
+  - Timeout handling and error recovery
+  - Model management and version tracking
+
+#### **6. Configuration Management (`src/config/`)**
+- **ConfigManager**: Centralized configuration with validation
+  - Zod schema validation for type safety
+  - Environment variable loading with sensible defaults
+  - Strategy parameter loading from JSON files
+  - Runtime configuration updates and persistence
+
+#### **7. Utilities (`src/utils/`)**
+- **Enhanced Logger**: Structured logging system
+  - Component-based logging with configurable levels
+  - Log retention and filtering capabilities
+  - Console output with timestamps and context
+
+### **Architecture Benefits**
+- **Type Safety**: All interfaces properly typed with runtime validation
+- **Modularity**: Clear separation of concerns with testable components
+- **Extensibility**: Easy to add new strategies, AI providers, or data sources
+- **Configuration-Driven**: Runtime behavior controlled by configuration
+- **Fault Tolerance**: Comprehensive error handling and graceful degradation
+- **Monitoring**: Built-in statistics and logging throughout the system
+
+## Legacy System Architecture (v0.1.1)
 1. **Market Data (`marketData.ts`)**
    - Extracts features: bodyOverAtr, volumeZ, obImbalance, premiumPct.
    - Now enriched with fundingRate, openInterest, realizedVol, spreadBps.
