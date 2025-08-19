@@ -1,0 +1,88 @@
+# LoRA Training Configuration for Drift E3 Bot
+# Optimized for Apple M4 Pro (24GB RAM, 12 cores)
+
+# Model Configuration
+model:
+  base_model: "Qwen/Qwen2.5-7B-Instruct"  # Qwen 2.5 for advanced trading intelligence
+  model_max_length: 2048
+  trust_remote_code: true
+
+# LoRA Configuration
+lora:
+  r: 16                    # LoRA rank (sweet spot for 24GB)
+  lora_alpha: 32           # Scaling factor
+  lora_dropout: 0.1
+  bias: "none"
+  task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj" 
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+# Training Arguments (Optimized for M4 Pro + Qwen 2.5)
+training:
+  output_dir: "./training/models/drift-e3-lora"
+  per_device_train_batch_size: 4      # Optimal for 24GB with Qwen 2.5
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4       # Effective batch size: 16
+  num_train_epochs: 2
+  max_steps: 1000                      # 2-3 hours training for better results
+  learning_rate: 2.0e-4                # Lower LR for larger model stability
+  weight_decay: 0.01
+  warmup_steps: 100                    # More warmup for larger model
+  logging_steps: 10
+  save_steps: 100
+  eval_steps: 100
+  evaluation_strategy: "steps"
+  save_strategy: "steps"
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+  
+# Data Processing
+data:
+  train_split: 0.8
+  eval_split: 0.2
+  max_seq_length: 512                  # Increased for Qwen 2.5 capabilities
+  preprocessing_num_workers: 4         # Stable for M4 Pro
+
+# Hardware Optimization
+hardware:
+  fp16: true                          # Use half precision
+  dataloader_num_workers: 6           # Leave some cores for system
+  dataloader_pin_memory: true
+  remove_unused_columns: false
+  
+# Monitoring
+monitoring:
+  report_to: ["tensorboard"]          # Local monitoring
+  logging_dir: "./training/logs"
+  run_name: "drift-e3-qwen2.5-lora-v1"
+
+# Trading-Specific Settings
+trading:
+  features:
+    - "price"
+    - "volume" 
+    - "volatility"
+    - "bodyOverAtr"
+    - "volumeZ"
+    - "spreadBps"
+    - "premiumPct"
+    - "realizedVol"
+    - "openInterest"
+    - "fundingRate"
+  
+  labels:
+    - "profitable"              # Binary: Will trade be profitable?
+    - "pnl"                     # Regression: Expected PnL
+    - "hold_time"               # Regression: Optimal hold time
+    - "market_regime"           # Classification: trending/ranging/volatile
+    
+  data_sources:
+    - "var/trading.db"       # Your existing trade database
+    - "./training/data/market_data.json"  # Additional market context

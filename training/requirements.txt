@@ -1,0 +1,31 @@
+# LoRA Training Dependencies for Drift E3 Bot
+# Optimized for Apple M4 Pro with 24GB RAM
+
+# Core ML Framework (Apple Silicon optimized)
+torch
+torchvision
+torchaudio
+
+# Transformers and LoRA
+transformers
+peft
+datasets
+accelerate
+
+# Model optimization (skip bitsandbytes for Apple Silicon)
+optimum
+
+# Data processing
+pandas
+numpy
+scikit-learn
+
+# Visualization and monitoring
+matplotlib
+seaborn
+tqdm
+
+# Utilities
+python-dotenv
+pyyaml
+jsonlines

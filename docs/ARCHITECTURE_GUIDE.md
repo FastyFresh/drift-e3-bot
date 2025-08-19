@@ -1,0 +1,305 @@
+# Architecture Guide
+
+## Aug 2025 Update - v0.8.1 LoRA Training Infrastructure & Qwen 2.5 Integration
+- **LoRA Training Infrastructure**: Complete LoRA fine-tuning system for trading intelligence enhancement. Configured Qwen/Qwen2.5-7B-Instruct as base model with optimized training parameters for Apple M4 Pro (24GB RAM). Training data preparation converts 11,352 trading examples into instruction-response pairs for model fine-tuning.
+- **Qwen 2.5 Model Integration**: Upgraded from DialoGPT-medium to Qwen/Qwen2.5-7B-Instruct for superior trading decision-making capabilities. Optimized configuration: 2048 token context, batch size 4, learning rate 2e-4, 1000 training steps for 2-3 hour training cycles.
+- **Phase 3 Integration Complete**: Successfully integrated modular architecture with main trading engine. Created MainTradingEngine orchestrating all components, migrated FundingFade strategy, and established complete trading loop with entry/exit management, position tracking, and risk validation.
+- **Complete Modular Refactoring (Phase 2)**: Implemented comprehensive modular architecture with TypeScript interfaces, dependency injection, and clean separation of concerns. Created core types system, strategy framework, risk management, data layer abstraction, AI provider system, and centralized configuration management.
+- **Enhanced Risk Management & Leverage Optimization**: Real Drift equity integration, ATR-based exit management, progressive profit taking (1R/2R), time-based exits, and comprehensive PnL logging. Position sizing increased to $22 (0.26x leverage) with enhanced risk management.
+- **Modern Development Tooling**: TypeScript path mapping, ESLint + Prettier integration, organized npm scripts, and quality assurance tooling. Automated formatting fixed 97 code style issues.
+- **Memory-Efficient Optimizer (v0.6.5)**: Completely refactored `src/optimize.ts` to solve memory issues that prevented comprehensive parameter sweeps. Implemented chunked processing (configurable chunk sizes), progress tracking with resumption capability, garbage collection monitoring, and memory usage logging. Added new npm scripts with increased memory allocation and garbage collection flags. Successfully tested 48 parameter sets without crashes, enabling systematic discovery of optimal profitable parameters.
+- **E3 Strategy Critical Fix (v0.6.4)**: Fixed major logic bug in `src/strategy/e3.ts` where `shouldEnter` method was not properly evaluating all conditions. The strategy was always triggering regardless of volume Z-score, order book imbalance, or funding rate thresholds. After fix: strategy now generates 60,000+ realistic trades over 7+ months with profitable parameter sets achieving +4.39 PnL.
+- **Strategy Layer**: E3 baseline moved into **high-trade mode** for testing backtest infrastructure.
+- **Backtest Regimes**: Regime classifier (`regimes.ts`) confirmed wired into backtest loop; metrics breakdown placeholder logs regimes for each tick.
+- **Pipeline Fixes**: Backtest equity curve logging patched to avoid NaN values, all trades now priced correctly.
+- **Roadmap**: Overlay regimes in `visualize.ts`, introduce Funding & Premium Skew Fade strategy, and integrate AI for parameter tuning across 2023–2025 tests.
+
+## Modular System Architecture (v0.8.1)
+
+### **Core Architecture Components**
+
+#### **1. Core Types System (`src/core/types.ts`)**
+- **Comprehensive TypeScript Interfaces**: All trading components implement well-defined contracts
+- **Custom Error Classes**: `TradingError`, `RiskError`, `MarketDataError`, `StrategyError` with context
+- **Data Types**: `MarketFeatures`, `TradingDecision`, `Position`, `PnLRecord`, `TradeExecution`
+- **Configuration Types**: `AppConfig`, `TradingConfig`, `DatabaseConfig`, `AIConfig`, `RiskParameters`
+- **Provider Interfaces**: `TradingStrategy`, `RiskManager`, `MarketDataProvider`, `AIProvider`, `DatabaseProvider`
+
+#### **2. Strategy Framework (`src/strategies/`)**
+- **BaseStrategy**: Abstract foundation implementing `TradingStrategy` interface
+  - Common functionality: parameter management, decision creation, logging helpers
+  - Lifecycle management: initialize, cleanup, reset, statistics
+  - Validation and confidence normalization utilities
+- **E3Strategy**: Refactored implementation using new architecture
+  - Position state tracking with trailing stops
+  - Parameter-driven thresholds from configuration
+  - Enhanced exit management (take profit, stop loss, trailing stops)
+  - Confidence calculation for big move prediction
+- **StrategyManager**: Multi-strategy coordination
+  - Active strategy selection and execution
+  - Consensus decision making across multiple strategies
+  - Strategy lifecycle management and statistics aggregation
+
+#### **3. Risk Management (`src/risk/`)**
+- **TradingRiskManager**: Comprehensive risk control system
+  - Position sizing with confidence-based scaling (0.5x to 1.5x multiplier)
+  - Daily loss limits and consecutive loss tracking
+  - Maximum drawdown protection and circuit breakers
+  - Real-time risk state monitoring and statistics
+  - Risk-adjusted position sizing based on stop loss levels
+
+#### **4. Data Layer (`src/data/`)**
+- **SQLiteDatabaseProvider**: Structured logging with performance optimization
+  - Separate tables for signals, orders, and PnL with indexes
+  - Statistics aggregation and recent trade retrieval
+  - Graceful degradation with console logging fallback
+- **DriftMarketDataProvider**: Real-time market data abstraction
+  - Subscription-based data distribution to multiple consumers
+  - Market data caching with age validation
+  - Feature validation and error handling
+
+#### **5. AI Integration (`src/ai/`)**
+- **BaseAIProvider**: Abstract foundation for AI implementations
+  - Structured prompt building and response parsing
+  - Decision creation and validation utilities
+  - Statistics and lifecycle management
+- **OllamaAIProvider**: Ollama integration with enterprise features
+  - Retry mechanisms with exponential backoff
+  - Connection testing and model availability checking
+  - Timeout handling and error recovery
+  - Model management and version tracking
+
+#### **6. Configuration Management (`src/config/`)**
+- **ConfigManager**: Centralized configuration with validation
+  - Zod schema validation for type safety
+  - Environment variable loading with sensible defaults
+  - Strategy parameter loading from JSON files
+  - Runtime configuration updates and persistence
+
+#### **7. Utilities (`src/utils/`)**
+- **Enhanced Logger**: Structured logging system
+  - Component-based logging with configurable levels
+  - Log retention and filtering capabilities
+  - Console output with timestamps and context
+
+#### **8. Main Trading Engine (`src/core/engine.ts`)**
+- **MainTradingEngine**: Complete orchestration of all modular components
+  - Strategy manager integration with active strategy selection
+  - Risk manager integration with trade validation and position sizing
+  - Database provider integration with structured logging
+  - Market data provider integration with real-time features
+  - Main trading loop with entry/exit condition checking
+  - Position management and PnL tracking
+  - Comprehensive error handling and component lifecycle management
+
+### **Phase 3 Integration Status**
+- **✅ Strategy Migration**: E3Strategy and FundingFadeStrategy fully integrated
+- **✅ Main Trading Engine**: Complete orchestration layer operational
+- **✅ Component Integration**: All modules working together seamlessly
+- **✅ Configuration Management**: Multi-strategy configuration support
+- **✅ Trading Loop**: Entry/exit conditions with risk validation
+- **✅ Position Management**: Real-time tracking and PnL calculation
+- **⏳ Legacy Integration**: Remaining scripts and utilities (in progress)
+
+### **Architecture Benefits**
+- **Type Safety**: All interfaces properly typed with runtime validation
+- **Modularity**: Clear separation of concerns with testable components
+- **Extensibility**: Easy to add new strategies, AI providers, or data sources
+- **Configuration-Driven**: Runtime behavior controlled by configuration
+- **Fault Tolerance**: Comprehensive error handling and graceful degradation
+- **Monitoring**: Built-in statistics and logging throughout the system
+- **Integration Ready**: Main trading engine orchestrates all components
+
+## Legacy System Architecture (v0.1.1)
+1. **Market Data (`marketData.ts`)**
+   - Extracts features: bodyOverAtr, volumeZ, obImbalance, premiumPct.
+   - Now enriched with fundingRate, openInterest, realizedVol, spreadBps.
+
+2. **Strategies**
+   - **E3 (`strategy/e3.ts`)**: Profitability-focused rules using configurable thresholds (`CONFIG.thresholds`). **Fixed in v0.6.4**: Corrected `shouldEnter` logic to properly evaluate all conditions instead of always triggering. Now generates realistic trade volumes with profitable parameter sets. Produces trigger + side decision with reasons[] explaining trade logic.
+   - **Funding Fade (`strategy/fundingFade.ts`)**: Fades extremes in fundingRate + premiumPct, with filters on spread and volume. Integrated as of v0.6.1.
+   - **Optimizer Parameter Injection (v0.6.3)**: During optimization and backtests, parameter sets are injected into `(global as any).CONFIG.thresholds`. This enables dynamic strategy calibration for:
+     - E3: `bodyOverAtr`, `volumeZ`, `premiumPct`, `realizedVol`, `spreadBps`.
+     - Funding Fade: `fundingRate`, `premiumPct`, `spreadBps`, `volumeZ`.
+     - Backwards compatibility maintained via `thresholds` object in `config.ts`.
+
+3. **AI Layer (`aiGate.ts`)**
+   - Sends enriched feature context to Ollama LLM.
+   - Returns decision + confidence, along with prompt and raw response (audited in DB).
+
+4. **Risk (`risk.ts`)**
+   - Daily loss cap, cooldown, position sizing, adaptive logic.
+
+5. **Execution (`drift.ts`)**
+   - Places perps IOC orders on Drift Protocol.
+   - Slippage management via config.
+
+6. **Database (`db.ts`)**
+   - Logs signals, orders, trades, PnL.
+   - Audit fields: prompt, raw LLM responses tied to each decision.
+
+## Design Principle
+- **Hybrid Architecture**: Rule-based baseline ensures stable profit-seeking trades; LLM acts as a filter/confirmation layer.
+- **Traceability**: Every feature, decision, and LLM response logged for audit and iterative optimization.
+
+## Memory Optimization Implementation (v0.6.5)
+The optimizer was completely refactored to handle large-scale parameter sweeps without memory crashes:
+
+**Key Features:**
+- **Chunked Processing**: Configurable batch sizes (default: 5 parameter sets per chunk)
+- **Progress Persistence**: Saves results after each chunk to `progress_*.json` files
+- **Memory Monitoring**: Logs heap usage and forces garbage collection between chunks
+- **Resumption Capability**: Can resume interrupted optimizations from saved progress
+- **Enhanced npm Scripts**: `optimize:memory` with `--max-old-space-size=4096` and `--expose-gc`
+
+**Technical Implementation:**
+- `chunkArray()` function splits parameter sets into manageable batches
+- `forceGC()` function monitors memory usage and triggers garbage collection
+- Progress files include timestamp, completion status, and all intermediate results
+- Configurable via `chunkSize` and `saveProgress` in optimization config files
+
+This enables comprehensive parameter optimization for maximum profitability discovery.
+
+This document defines the high-level system architecture for the trading automation platform.
+
+---
+
+## Purpose & Non-Goals
+**Purpose**: Describe the major system components, their responsibilities, and how they interact.  
+**Non-Goals**: Implementation details, performance optimizations, or low-level SDK code.
+
+---
+
+## System Overview
+
+```mermaid
+flowchart LR
+    subgraph MasterAgent
+      M1[Coordinator]
+    end
+
+    subgraph StrategyAgents
+      S1[E3 Strategy]
+      S2[Funding Fade Strategy]
+      S3[AI Gate Strategy]
+    end
+
+    subgraph RiskAgent
+      R1[Risk Manager]
+    end
+
+    subgraph ExecutionAgent
+      E1[Drift SDK]
+    end
+
+    subgraph External
+      DB[(SQLite)]
+      MD[Market Data]
+    end
+
+    M1 --> S1
+    M1 --> S2
+    S1 --> R1
+    S2 --> R1
+    R1 --> E1
+    E1 --> DB
+    M1 --> DB
+    MD --> S1
+    MD --> S2
+```
+
+---
+
+## Agents & Responsibilities
+
+- **MasterAgent**
+  - Spawns and coordinates specialized agents
+  - Maintains runtime state
+  - Manages persistence and telemetry hooks
+
+- **Strategy Agents**
+  - Input: Market features, account state
+  - Output: Trading decisions (`Signal`, `Decision`)
+  - Includes:
+    - E3 strategy
+    - AI-based strategy gate
+
+- **Risk Agent**
+  - Input: Trading decisions + account balances
+  - Output: Permit/deny + adjusted order size
+  - Enforces caps, cooldowns, and circuit breakers
+
+- **Execution Agent**
+  - Input: Verified order request
+  - Output: Transaction result
+  - Interfaces with Drift SDK / blockchain
+
+---
+
+## Runtime Loop
+
+```mermaid
+sequenceDiagram
+    participant MD as Market Data
+    participant S1 as StrategyAgent
+    participant R as RiskAgent
+    participant E as ExecutionAgent
+    participant DB as Database
+
+    loop Every 1-min bar
+      MD->>S1: Provide features
+      S1->>R: Generate decision
+      R->>E: Validate + size order
+      E->>DB: Commit tx record
+    end
+```
+
+---
+
+## Data & Persistence
+- SQLite tables:
+  - `signals` (strategy decisions + confidence)
+  - `orders` (requests issued, status, txid)
+  - `risk_checks` (results from validator)
+- Future: telemetry and metrics table
+- **Drift Data Provider (v0.4.2 update)**:
+  - Aggregates Drift S3 trade/funding data into candles.
+  - `safeParseFile` now accepts trades with minimal required fields (`price` + timestamp).
+  - Optional fields tolerated (`side`, `maker`, `taker`, etc.).
+  - Structured logs output counts per-file: parsed, accepted, skipped, malformed.
+  - Robust to malformed lines; skips noise-only entries gracefully.
+
+---
+
+## Configuration
+- `.env` variables mapped via `config.ts`
+  - Exchange keys
+  - Risk thresholds
+  - Strategy flags
+
+---
+
+## Observability
+- Logs at each agent boundary
+- Metrics roadmap:
+  - Latency per pipeline stage
+  - Success/failure rates
+  - Risk rejections count
+
+---
+
+## Risks & Safeguards
+- Default fail-closed on anomalies
+- Reduce-only safeguards during error periods
+- Caps on order size and exposure
+
+---
+
+## Roadmap
+- **Phase 1**: Strategy enhancement & diversification (implement Funding Fade, optimize E3 thresholds)
+- **Phase 2**: AI-powered intelligence (enhanced Ollama prompts, automated parameter tuning)
+- **Phase 3**: Advanced risk management (Kelly sizing, ATR-based stops, portfolio allocation)
+- **Phase 4**: Robust backtest-to-live pipeline (walk-forward, Monte Carlo, live micro-deployment)
+- **Phase 5**: Scaling & advanced features (market microstructure analysis, multi-market expansion)
+
+Reference [PROFITABILITY_ROADMAP.md](./PROFITABILITY_ROADMAP.md) for comprehensive implementation detail.
