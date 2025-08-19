@@ -4,3 +4,10 @@ dist/
 *.db
 data/
 var/
+.env
+.env.local
+.env.*.local
+.env.*
+.EMV
+.envrc
+.secrets*
