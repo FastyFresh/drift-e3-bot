@@ -108,9 +108,10 @@ export class TradingRiskManager implements RiskManager {
     const adjustedSize = baseSize * confidenceMultiplier;
 
     // Apply maximum position size limit
+    // Cap by configured max position size (USD) and leverage notional (equity * maxLeverage)
     const maxSize = Math.min(
       this.parameters.maxPositionSize,
-      (equity * this.parameters.maxLeverage) / 100
+      equity * this.parameters.maxLeverage
     );
 
     const finalSize = Math.min(adjustedSize, maxSize);

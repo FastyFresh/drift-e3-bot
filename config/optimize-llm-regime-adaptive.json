@@ -1,0 +1,96 @@
+{
+  "name": "LLM-Enhanced Regime Adaptive Strategy Optimization",
+  "description": "Optimize regime-adaptive strategy with LLM decision-making integration",
+  "strategy": "regimeAdaptive",
+  "symbol": "SOL-PERP",
+  "timeframe": "1m",
+  "parameters": {
+    "m_bodyOverAtr": [0.4, 0.5, 0.6, 0.8],
+    "m_volumeZ": [1.8, 2.0, 2.5, 3.0],
+    "m_premiumPct": [0.002, 0.003, 0.004],
+    "m_realizedVol": [2.5, 3.0, 4.0, 5.0],
+    "m_spreadBps": [25, 30, 40, 50],
+    "m_bigMoveVolumeZ": [2.0, 2.5, 3.0],
+    "m_bigMoveBodyAtr": [0.6, 0.8, 1.0],
+    "m_confidenceMultiplier": [0.8, 1.0, 1.2],
+    "m_takeProfitPct": [0.015, 0.02, 0.025],
+    "m_stopLossPct": [0.008, 0.01, 0.012],
+    "m_trailingStopPct": [0.004, 0.005, 0.008],
+    
+    "f_fundingZ": [0.0003, 0.0005, 0.0008],
+    "f_premiumPct": [0.002, 0.003, 0.005],
+    "f_spreadBps": [30, 40, 50],
+    "f_volumeZ": [1.2, 1.5, 2.0],
+    "f_takeProfitPct": [0.01, 0.015, 0.02],
+    "f_stopLossPct": [0.008, 0.01, 0.012],
+    "f_fundingNormalizeThreshold": [0.00003, 0.00005, 0.00008],
+    
+    "thr_volHigh": [0.025, 0.03, 0.035],
+    "thr_crashMove": [0.04, 0.05, 0.06],
+    
+    "ai_confidenceWeight": [0.3, 0.5, 0.7],
+    "ai_regimeOverride": [true, false],
+    "ai_minConfidence": [0.2, 0.3, 0.4]
+  },
+  "constraints": {
+    "maxCombinations": 2500,
+    "earlyStopRules": {
+      "minProfitFactor": 1.0,
+      "maxDrawdownPct": 30.0,
+      "maxTradesPerDay": 50,
+      "minWinRate": 0.15
+    },
+    "regimeWeights": {
+      "bull_trend": 1.2,
+      "high_vol": 1.0,
+      "bear_trend": 0.8,
+      "chop": 0.6,
+      "crash": 0.4
+    }
+  },
+  "backtestPeriods": [
+    {
+      "name": "bull_optimization",
+      "start": "2023-10-01",
+      "end": "2023-12-31",
+      "weight": 1.5
+    },
+    {
+      "name": "chop_optimization", 
+      "start": "2024-06-01",
+      "end": "2024-06-30",
+      "weight": 1.0
+    }
+  ],
+  "validationPeriod": {
+    "name": "difficult_validation",
+    "start": "2024-08-01", 
+    "end": "2024-08-31",
+    "weight": 2.0
+  },
+  "scoring": {
+    "metrics": {
+      "profitFactor": 0.3,
+      "sharpeRatio": 0.25,
+      "maxDrawdown": 0.2,
+      "winRate": 0.15,
+      "avgTradeReturn": 0.1
+    },
+    "penalties": {
+      "excessiveTrades": 0.1,
+      "highVolatility": 0.05
+    }
+  },
+  "execution": {
+    "initialEquity": 1000,
+    "tradingFees": 0.001,
+    "maxLeverage": 3.0,
+    "regimeLeverageSchedule": {
+      "bull_trend": 3.0,
+      "high_vol": 2.5,
+      "bear_trend": 2.0,
+      "chop": 1.0,
+      "crash": 1.0
+    }
+  }
+}

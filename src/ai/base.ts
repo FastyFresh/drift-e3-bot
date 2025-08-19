@@ -137,6 +137,8 @@ export abstract class BaseAIProvider implements AIProvider {
     direction: TradingDirection;
     confidence: number;
     reasoning: string[];
+    regime?: string;
+    positionSize?: number;
   } {
     const lines = response
       .toLowerCase()
@@ -145,11 +147,28 @@ export abstract class BaseAIProvider implements AIProvider {
 
     let direction: TradingDirection = 'flat';
     let confidence = 0.5;
+    let regime: string | undefined;
+    let positionSize: number | undefined;
     const reasoning: string[] = [];
 
-    // Look for direction indicators
+    // Look for structured fields first
     for (const line of lines) {
-      if (line.includes('long') || line.includes('buy')) {
+      // Regime detection
+      const regimeMatch = line.match(/regime[:\s]*(bull_trend|bear_trend|high_vol|crash|chop)/);
+      if (regimeMatch) {
+        regime = regimeMatch[1];
+      }
+
+      // Direction detection
+      if (line.includes('direction:') || line.includes('direction ')) {
+        if (line.includes('long') || line.includes('buy')) {
+          direction = 'long';
+        } else if (line.includes('short') || line.includes('sell')) {
+          direction = 'short';
+        } else if (line.includes('flat') || line.includes('hold') || line.includes('wait')) {
+          direction = 'flat';
+        }
+      } else if (line.includes('long') || line.includes('buy')) {
         direction = 'long';
       } else if (line.includes('short') || line.includes('sell')) {
         direction = 'short';
@@ -157,15 +176,21 @@ export abstract class BaseAIProvider implements AIProvider {
         direction = 'flat';
       }
 
-      // Look for confidence indicators
+      // Confidence detection
       const confidenceMatch = line.match(/confidence[:\s]*(\d+(?:\.\d+)?)/);
       if (confidenceMatch) {
         const conf = parseFloat(confidenceMatch[1]);
         confidence = conf > 1 ? conf / 100 : conf; // Handle percentage format
       }
 
+      // Position size detection
+      const positionMatch = line.match(/position[:\s]*(\d+(?:\.\d+)?)/);
+      if (positionMatch) {
+        positionSize = parseFloat(positionMatch[1]);
+      }
+
       // Collect reasoning
-      if (line.length > 10 && !line.includes('confidence') && !line.includes('direction')) {
+      if (line.length > 10 && !line.includes('confidence') && !line.includes('direction') && !line.includes('regime') && !line.includes('position')) {
         reasoning.push(line);
       }
     }
@@ -174,6 +199,8 @@ export abstract class BaseAIProvider implements AIProvider {
       direction,
       confidence: this.normalizeConfidence(confidence),
       reasoning: reasoning.slice(0, 3), // Limit to top 3 reasons
+      regime,
+      positionSize,
     };
   }
 

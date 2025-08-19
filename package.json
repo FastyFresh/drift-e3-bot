@@ -70,6 +70,7 @@
     "better-sqlite3": "^12.2.0",
     "bs58": "^6.0.0",
     "dotenv": "^16.6.1",
+    "node-fetch": "^3.3.2",
     "plotly.js-dist-min": "^3.1.0",
     "rpc-websockets": "^7.5.0",
     "zod": "^3.23.8"

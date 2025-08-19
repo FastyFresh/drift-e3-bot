@@ -3,8 +3,8 @@
 
 # Model Configuration
 model:
-  base_model: "Qwen/Qwen2.5-7B-Instruct"  # Your current model
-  model_max_length: 2048
+  base_model: "Qwen/Qwen2.5-3B-Instruct"  # 3B model for M4 Pro memory constraints
+  model_max_length: 512
   trust_remote_code: true
 
 # LoRA Configuration
@@ -23,20 +23,20 @@ lora:
     - "up_proj"
     - "down_proj"
 
-# Training Arguments (Optimized for M4 Pro)
+# Training Arguments (Optimized for M4 Pro + Qwen 2.5)
 training:
   output_dir: "./training/models/drift-e3-lora"
-  per_device_train_batch_size: 4      # Optimal for 24GB
-  per_device_eval_batch_size: 4
-  gradient_accumulation_steps: 4       # Effective batch size: 16
-  num_train_epochs: 3
-  max_steps: 1000                      # ~2-3 hours training
-  learning_rate: 2.0e-4
+  per_device_train_batch_size: 1      # Reduced for 7B model on 24GB
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8       # Effective batch size: 8
+  num_train_epochs: 2
+  max_steps: 1000                      # 2-3 hours training for better results
+  learning_rate: 2.0e-4                # Lower LR for larger model stability
   weight_decay: 0.01
-  warmup_steps: 100
+  warmup_steps: 100                    # More warmup for larger model
   logging_steps: 10
-  save_steps: 250
-  eval_steps: 250
+  save_steps: 100
+  eval_steps: 100
   evaluation_strategy: "steps"
   save_strategy: "steps"
   load_best_model_at_end: true
@@ -47,21 +47,22 @@ training:
 data:
   train_split: 0.8
   eval_split: 0.2
-  max_seq_length: 1024
-  preprocessing_num_workers: 8         # Use your 12 cores efficiently
+  max_seq_length: 512                  # Increased for Qwen 2.5 capabilities
+  preprocessing_num_workers: 1         # Reduced to prevent memory spikes
 
 # Hardware Optimization
 hardware:
-  fp16: true                          # Use half precision
-  dataloader_num_workers: 6           # Leave some cores for system
-  dataloader_pin_memory: true
+  fp16: false                         # MPS doesn't support fp16
+  gradient_checkpointing: true        # Reduce memory usage
+  dataloader_num_workers: 4           # Reduced for memory
+  dataloader_pin_memory: false        # Disable for MPS
   remove_unused_columns: false
   
 # Monitoring
 monitoring:
   report_to: ["tensorboard"]          # Local monitoring
   logging_dir: "./training/logs"
-  run_name: "drift-e3-lora-v1"
+  run_name: "drift-e3-qwen2.5-lora-v1"
 
 # Trading-Specific Settings
 trading:
@@ -84,5 +85,5 @@ trading:
     - "market_regime"           # Classification: trending/ranging/volatile
     
   data_sources:
-    - "../var/trading.db"       # Your existing trade database
+    - "var/trading.db"       # Your existing trade database
     - "./training/data/market_data.json"  # Additional market context

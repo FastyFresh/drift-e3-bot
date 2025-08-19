@@ -3,7 +3,7 @@ const path = require('path');
 
 // Function to analyze optimization results
 function analyzeOptimizationResults() {
-    const optimizeDir = 'var/optimize';
+    const optimizeDir = 'var/old_optimize';
     const results = [];
     
     // Read all progress files

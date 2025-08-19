@@ -118,6 +118,16 @@ export class BacktestEngine {
       );
       await fundingFadeStrategy.initialize();
       this.strategyManager.setActiveStrategy('fundingFade');
+      logger.info('BacktestEngine', '🎯 FundingFade strategy setup for backtest');
+    } else if (strategyName.toLowerCase() === 'regimeadaptive' && this.config.strategies.regimeAdaptive) {
+      const regimeStrategy = this.strategyManager.createRegimeAdaptiveStrategy(
+        this.config.strategies.regimeAdaptive
+      );
+      await regimeStrategy.initialize();
+      this.strategyManager.setActiveStrategy('regimeAdaptive');
+      logger.info('BacktestEngine', '🎯 RegimeAdaptive strategy setup for backtest');
+      await fundingFadeStrategy.initialize();
+      this.strategyManager.setActiveStrategy('fundingFade');
       logger.info('BacktestEngine', '💰 FundingFade strategy setup for backtest');
     } else {
       throw new Error(`Strategy ${strategyName} not available or not configured`);
@@ -188,6 +198,21 @@ export class BacktestEngine {
   }
 
   /**
+  /**
+   * Derive a simple regime from features (local to engine for risk sizing)
+   */
+  private deriveRegime(features: MarketFeatures): 'bull_trend' | 'bear_trend' | 'crash' | 'high_vol' | 'chop' {
+    const funding = features.fundingRate ?? 0;
+    const vol = features.volatility ?? 0;
+    const volHigh = 0.03;
+
+    if (vol > volHigh) return 'high_vol';
+    if (funding > 0) return 'bull_trend';
+    if (funding < 0) return 'bear_trend';
+    return 'chop';
+  }
+
+  /**
    * Check entry conditions
    */
   private async checkEntryConditions(features: MarketFeatures): Promise<void> {
@@ -206,10 +231,23 @@ export class BacktestEngine {
       return;
     }
 
+    // Regime-aware leverage schedule (max 3x)
+    const regime = this.deriveRegime(features);
+    const regimeLeverage =
+      regime === 'bull_trend' ? 3.0 :
+      regime === 'high_vol' ? 2.5 :
+      regime === 'bear_trend' ? 2.0 :
+      regime === 'crash' ? 1.0 : 1.0; // chop
+    this.riskManager.updateParameters({ maxLeverage: regimeLeverage });
+
     // Calculate position size
     const positionSize = this.riskManager.calculatePositionSize(this.equity, decision.confidence);
 
-    // Execute simulated trade
+    // Execute simulated trade (apply entry fee)
+    const entryNotional = positionSize; // USD size
+    const entryFee = entryNotional * 0.001; // 0.1% per side
+    this.equity -= entryFee;
+
     this.position = {
       side: decision.direction as 'long' | 'short',
       entryPrice: features.price,
@@ -259,11 +297,12 @@ export class BacktestEngine {
       return;
     }
 
-    // Execute exit
-    const pnl = this.calculateUnrealizedPnl(features.price);
+    // Execute exit (apply exit fee and net PnL)
+    const grossPnl = this.calculateUnrealizedPnl(features.price);
+    const exitNotional = this.position.size; // USD size
+    const exitFee = exitNotional * 0.001; // 0.1% per side
+    const pnl = grossPnl - exitFee;
     this.equity += pnl;
-
-    // Record trade
     const trade: PnLRecord = {
       timestamp: features.timestamp,
       symbol: this.config.trading.symbol,
@@ -334,6 +373,8 @@ export class BacktestEngine {
     let peak = this.equityCurve[0]?.equity || 0;
 
     for (const point of this.equityCurve) {
+
+
       if (point.equity > peak) {
         peak = point.equity;
       }

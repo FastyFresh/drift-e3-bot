@@ -59,13 +59,13 @@ class TradingDataPreparer:
             
             # Load PnL data
             pnl_query = """
-            SELECT 
-                timestamp,
+            SELECT
+                ts as timestamp,
                 symbol,
-                pnl_usd as pnl,
+                pnlUsd as pnl,
                 reason as exit_reason
             FROM pnl
-            ORDER BY timestamp
+            ORDER BY ts
             """
             
             pnl_df = pd.read_sql_query(pnl_query, conn)
@@ -78,7 +78,42 @@ class TradingDataPreparer:
         except Exception as e:
             logger.error(f"Error loading trading data: {e}")
             return pd.DataFrame(), pd.DataFrame()
-    
+
+    def load_backtest_data(self) -> pd.DataFrame:
+        """Load backtest data if available"""
+        backtest_db_path = "var/backtest_training_data.db"
+
+        if not os.path.exists(backtest_db_path):
+            logger.info("No backtest data available")
+            return pd.DataFrame()
+
+        try:
+            conn = sqlite3.connect(backtest_db_path)
+
+            backtest_query = """
+            SELECT
+                timestamp,
+                side as decision,
+                1.0 as confidence,
+                'backtest' as trigger,
+                features,
+                pnl,
+                profitable,
+                hold_time
+            FROM backtest_signals
+            ORDER BY timestamp
+            """
+
+            backtest_df = pd.read_sql_query(backtest_query, conn)
+            conn.close()
+
+            logger.info(f"Loaded {len(backtest_df)} backtest signals")
+            return backtest_df
+
+        except Exception as e:
+            logger.error(f"Error loading backtest data: {e}")
+            return pd.DataFrame()
+
     def parse_features(self, features_json: str) -> Dict:
         """Parse features JSON string into dictionary"""
         try:
@@ -231,9 +266,43 @@ Market Regime: {'trending' if abs(labels['pnl']) > 1 else 'ranging'}"""
         """Run the complete data preparation pipeline"""
         logger.info("Starting data preparation for LoRA training...")
         
-        # Load trading data
+        # Load live trading data
         signals_df, pnl_df = self.load_trading_data()
-        
+
+        # Load backtest data
+        backtest_df = self.load_backtest_data()
+
+        # Combine live and backtest data
+        if not backtest_df.empty:
+            # For backtest data, create synthetic PnL records
+            backtest_pnl = []
+            for _, row in backtest_df.iterrows():
+                backtest_pnl.append({
+                    'timestamp': row['timestamp'],
+                    'symbol': 'SOL-PERP',
+                    'pnl': row.get('pnl', 0),
+                    'exit_reason': 'backtest'
+                })
+
+            backtest_pnl_df = pd.DataFrame(backtest_pnl)
+
+            # Ensure timestamp columns are consistent types
+            signals_df['timestamp'] = pd.to_numeric(signals_df['timestamp'], errors='coerce')
+            backtest_df['timestamp'] = pd.to_numeric(backtest_df['timestamp'], errors='coerce')
+
+            # Combine signals and PnL data
+            signals_df = pd.concat([signals_df, backtest_df], ignore_index=True)
+            if not pnl_df.empty:
+                pnl_df = pd.concat([pnl_df, backtest_pnl_df], ignore_index=True)
+            else:
+                pnl_df = backtest_pnl_df
+
+            # Sort by timestamp
+            signals_df = signals_df.sort_values('timestamp').reset_index(drop=True)
+            pnl_df = pnl_df.sort_values('timestamp').reset_index(drop=True)
+
+            logger.info(f"Combined dataset: {len(signals_df)} total signals ({len(backtest_df)} from backtest)")
+
         if signals_df.empty:
             logger.error("No trading data found. Cannot proceed with training.")
             return

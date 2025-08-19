@@ -12,6 +12,7 @@ import type {
 } from '@/core/types';
 import { E3Strategy } from '@/strategies/e3';
 import { FundingFadeStrategy } from '@/strategies/fundingFade';
+import { RegimeAdaptiveStrategy } from '@/strategies/regimeAdaptive';
 
 /**
  * Strategy Manager Class
@@ -47,6 +48,15 @@ export class StrategyManager {
   public createFundingFadeStrategy(config: StrategyConfig): FundingFadeStrategy {
     const strategy = new FundingFadeStrategy(config);
     this.registerStrategy('fundingFade', strategy);
+    return strategy;
+  }
+
+  /**
+   * Create and register Regime Adaptive strategy
+   */
+  public createRegimeAdaptiveStrategy(config: StrategyConfig): RegimeAdaptiveStrategy {
+    const strategy = new RegimeAdaptiveStrategy(config);
+    this.registerStrategy('regimeAdaptive', strategy);
     return strategy;
   }
 

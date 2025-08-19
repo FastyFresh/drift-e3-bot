@@ -73,9 +73,11 @@ ${marketData}${contextSection}
 
 Based on this market data, provide your trading analysis:
 
-1. Direction: Should we go LONG, SHORT, or stay FLAT?
-2. Confidence: What's your confidence level (0.0 to 1.0)?
-3. Reasoning: Why did you make this decision?
+1. Market Regime: Classify as bull_trend, bear_trend, high_vol, crash, or chop
+2. Direction: Should we go LONG, SHORT, or stay FLAT?
+3. Confidence: What's your confidence level (0.0 to 1.0)?
+4. Position Size: Suggest position size multiplier (0.5-2.0x based on regime and confidence)
+5. Reasoning: Why did you make this decision?
 
 Focus on:
 - Volume spikes (volumeZ > 2.0 indicates unusual activity)
@@ -83,11 +85,22 @@ Focus on:
 - Order book imbalance (extreme values indicate directional pressure)
 - Tight spreads (< 30 bps indicates good liquidity)
 - Low funding premium (< 0.2% indicates balanced market)
+- Funding rate extremes (> 0.05% or < -0.05% indicate regime shifts)
+- Volatility regime (realizedVol > 3.0 indicates explosive potential)
+
+Regime Guidelines:
+- bull_trend: Positive funding, rising prices, strong volume
+- bear_trend: Negative funding, falling prices, selling pressure
+- high_vol: High volatility, large moves, uncertain direction
+- crash: Extreme moves (>5%), panic selling/buying
+- chop: Low volatility, tight ranges, no clear trend
 
 Respond in this format:
+Regime: [bull_trend/bear_trend/high_vol/crash/chop]
 Direction: [LONG/SHORT/FLAT]
 Confidence: [0.0-1.0]
-Reasoning: [Your analysis]
+PositionSize: [0.5-2.0]
+Reasoning: [Your analysis including regime justification]
     `.trim();
   }
 

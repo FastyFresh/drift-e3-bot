@@ -1,6 +1,8 @@
 # Architecture Guide
 
-## Aug 2025 Update - v0.8.0 Modular Architecture & Integration
+## Aug 2025 Update - v0.8.1 LoRA Training Infrastructure & Qwen 2.5 Integration
+- **LoRA Training Infrastructure**: Complete LoRA fine-tuning system for trading intelligence enhancement. Configured Qwen/Qwen2.5-7B-Instruct as base model with optimized training parameters for Apple M4 Pro (24GB RAM). Training data preparation converts 11,352 trading examples into instruction-response pairs for model fine-tuning.
+- **Qwen 2.5 Model Integration**: Upgraded from DialoGPT-medium to Qwen/Qwen2.5-7B-Instruct for superior trading decision-making capabilities. Optimized configuration: 2048 token context, batch size 4, learning rate 2e-4, 1000 training steps for 2-3 hour training cycles.
 - **Phase 3 Integration Complete**: Successfully integrated modular architecture with main trading engine. Created MainTradingEngine orchestrating all components, migrated FundingFade strategy, and established complete trading loop with entry/exit management, position tracking, and risk validation.
 - **Complete Modular Refactoring (Phase 2)**: Implemented comprehensive modular architecture with TypeScript interfaces, dependency injection, and clean separation of concerns. Created core types system, strategy framework, risk management, data layer abstraction, AI provider system, and centralized configuration management.
 - **Enhanced Risk Management & Leverage Optimization**: Real Drift equity integration, ATR-based exit management, progressive profit taking (1R/2R), time-based exits, and comprehensive PnL logging. Position sizing increased to $22 (0.26x leverage) with enhanced risk management.
@@ -12,8 +14,7 @@
 - **Pipeline Fixes**: Backtest equity curve logging patched to avoid NaN values, all trades now priced correctly.
 - **Roadmap**: Overlay regimes in `visualize.ts`, introduce Funding & Premium Skew Fade strategy, and integrate AI for parameter tuning across 2023–2025 tests.
 
-
-## Modular System Architecture (v0.8.0)
+## Modular System Architecture (v0.8.1)
 
 ### **Core Architecture Components**
 
