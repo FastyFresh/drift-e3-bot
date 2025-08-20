@@ -1,7 +1,7 @@
 # Drift E3 Bot
 
-A trading bot for **Drift Protocol** with backtesting and parameter optimization, specialized in capturing **explosive 1-minute price movements**.
-Current Version: **v0.8.0** - Enhanced Risk Management, Leverage Optimization & Modern Development Tooling!
+A trading bot for **Drift Protocol** with LLM-enhanced decision making and regime-adaptive strategies, specialized in capturing **explosive 1-minute price movements**.
+Current Version: **v0.8.0** - LLM-Enhanced Regime-Adaptive Strategy with QwQ-32B Integration!
 
 ---
 
@@ -29,10 +29,23 @@ Current Version: **v0.8.0** - Enhanced Risk Management, Leverage Optimization & 
 
 ## 🎯 **Recent Enhancements (v0.8.0)**
 
-### **Real Drift Equity Integration**
-- **Live Account Monitoring**: Real-time equity from Drift Protocol APIs
-- **Smart Collateral Usage**: Uses only USDC trading collateral ($83.58) for safety
-- **Position Sizing**: Dynamic sizing based on actual account balance
+### **LLM-Enhanced Regime-Adaptive Strategy**
+- **QwQ-32B Integration**: Advanced reasoning model for market regime detection
+- **Hybrid AI + Rule-Based**: Combines LLM analysis with traditional signal fallbacks
+- **Dynamic Strategy Switching**: Momentum (E3) vs Contrarian (FundingFade) based on regime
+- **Regime Classification**: bull_trend, bear_trend, high_vol, crash, chop detection
+- **Confidence Blending**: AI and traditional signal confidence integration
+
+### **Dynamic Leverage System**
+- **Regime-Aware Leverage**: 2x-3x maximum based on market conditions
+- **Bull Trend**: 3.0x leverage for momentum opportunities
+- **High Volatility**: 2.5x leverage for explosive moves
+- **Bear/Chop**: 2.0x-1.0x conservative positioning
+
+### **Enhanced Fee Modeling**
+- **Realistic Backtesting**: 0.1% per-side trading fees included
+- **Performance Assessment**: True cost-adjusted returns
+- **Risk Management**: Fee-aware position sizing and optimization
 
 ### **Advanced Exit Management**
 - **ATR-Based Stops**: Dynamic stop losses based on market volatility

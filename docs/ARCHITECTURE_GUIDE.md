@@ -1,5 +1,14 @@
 # Architecture Guide
 
+## Aug 2025 Update - v0.8.0 LLM-Enhanced Regime-Adaptive Strategy
+
+- **RegimeAdaptiveStrategy**: New hybrid strategy combining AI regime detection with rule-based fallbacks. Uses QwQ-32B for market regime classification (bull_trend, bear_trend, high_vol, crash, chop) and dynamically switches between momentum (E3) and contrarian (FundingFade) approaches.
+- **Enhanced LLM Integration**: Upgraded AI prompts to include regime analysis, position sizing recommendations, and enhanced reasoning. Response parsing now extracts regime classification and position size multipliers from LLM output.
+- **Dynamic Leverage System**: Regime-aware leverage scaling (bull_trend: 3.0x, high_vol: 2.5x, bear_trend: 2.0x, chop: 1.0x, crash: 1.0x) with proper risk management integration.
+- **Fee Modeling**: Added 0.1% per-side trading fees to both modular and legacy backtest engines for realistic performance assessment.
+- **LLM-Aware Optimization**: New optimization configuration (`optimize-llm-regime-adaptive.json`) with AI confidence weighting, regime-specific parameters, and early stopping rules to prevent combinatorial explosion.
+- **Risk Management Fixes**: Corrected leverage cap calculation in TradingRiskManager (removed erroneous division by 100) and integrated regime-aware position sizing.
+
 ## Aug 2025 Update - v0.8.1 LoRA Training Infrastructure & Qwen 2.5 Integration
 - **LoRA Training Infrastructure**: Complete LoRA fine-tuning system for trading intelligence enhancement. Configured Qwen/Qwen2.5-7B-Instruct as base model with optimized training parameters for Apple M4 Pro (24GB RAM). Training data preparation converts 11,352 trading examples into instruction-response pairs for model fine-tuning.
 - **Qwen 2.5 Model Integration**: Upgraded from DialoGPT-medium to Qwen/Qwen2.5-7B-Instruct for superior trading decision-making capabilities. Optimized configuration: 2048 token context, batch size 4, learning rate 2e-4, 1000 training steps for 2-3 hour training cycles.
@@ -35,6 +44,11 @@
   - Parameter-driven thresholds from configuration
   - Enhanced exit management (take profit, stop loss, trailing stops)
   - Confidence calculation for big move prediction
+- **RegimeAdaptiveStrategy**: LLM-enhanced hybrid strategy (v0.8.0)
+  - AI + rule-based regime detection using QwQ-32B
+  - Dynamic strategy switching: momentum (E3) vs contrarian (FundingFade)
+  - Confidence blending between AI and traditional signals
+  - Regime-aware parameter optimization
 - **StrategyManager**: Multi-strategy coordination
   - Active strategy selection and execution
   - Consensus decision making across multiple strategies
@@ -60,14 +74,16 @@
 
 #### **5. AI Integration (`src/ai/`)**
 - **BaseAIProvider**: Abstract foundation for AI implementations
-  - Structured prompt building and response parsing
+  - Enhanced response parsing for regime detection and position sizing
   - Decision creation and validation utilities
   - Statistics and lifecycle management
-- **OllamaAIProvider**: Ollama integration with enterprise features
+- **OllamaAIProvider**: QwQ-32B and Mistral integration (v0.8.0)
+  - Enhanced prompts for regime classification and market analysis
+  - Regime detection: bull_trend, bear_trend, high_vol, crash, chop
+  - Position size recommendations and confidence scoring
   - Retry mechanisms with exponential backoff
   - Connection testing and model availability checking
   - Timeout handling and error recovery
-  - Model management and version tracking
 
 #### **6. Configuration Management (`src/config/`)**
 - **ConfigManager**: Centralized configuration with validation

@@ -110,6 +110,10 @@ drift-e3-bot/
 #### **Strategy System (`src/strategies/`)**
 - `BaseStrategy`: Abstract foundation for all trading strategies
 - `E3Strategy`: Refactored E3 implementation using new architecture
+- `RegimeAdaptiveStrategy`: LLM-enhanced hybrid strategy (v0.8.0)
+  - AI + rule-based regime detection using QwQ-32B
+  - Dynamic switching between momentum and contrarian approaches
+  - Confidence blending and regime-aware optimization
 - `StrategyManager`: Multi-strategy coordination and consensus decisions
 - Pluggable design for easy strategy addition
 
@@ -127,7 +131,10 @@ drift-e3-bot/
 
 #### **AI Integration (`src/ai/`)**
 - `BaseAIProvider`: Abstract foundation for AI implementations
-- `OllamaAIProvider`: Ollama integration with retry mechanisms
+- `OllamaAIProvider`: QwQ-32B and Mistral integration (v0.8.0)
+  - Enhanced prompts for regime classification and market analysis
+  - Response parsing for regime detection and position sizing
+  - Retry mechanisms with exponential backoff
 - Structured prompt building and response parsing
 - Model management and availability checking
 
