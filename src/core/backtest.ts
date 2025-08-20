@@ -126,9 +126,6 @@ export class BacktestEngine {
       await regimeStrategy.initialize();
       this.strategyManager.setActiveStrategy('regimeAdaptive');
       logger.info('BacktestEngine', '🎯 RegimeAdaptive strategy setup for backtest');
-      await fundingFadeStrategy.initialize();
-      this.strategyManager.setActiveStrategy('fundingFade');
-      logger.info('BacktestEngine', '💰 FundingFade strategy setup for backtest');
     } else {
       throw new Error(`Strategy ${strategyName} not available or not configured`);
     }

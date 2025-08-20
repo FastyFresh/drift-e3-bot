@@ -10,6 +10,7 @@ export { BaseStrategy } from './base';
 export { E3Strategy } from './e3';
 export { FundingFadeStrategy } from './fundingFade';
 export { RegimeAdaptiveStrategy } from './regimeAdaptive';
+export { UniversalStrategy } from './universal';
 
 // Strategy manager
 export { StrategyManager } from './manager';

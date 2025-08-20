@@ -1,0 +1,210 @@
+{
+  "name": "Universal Strategy Optimization - Backtesting Best Practices",
+  "description": "Comprehensive optimization of Universal ensemble strategy with walk-forward analysis and statistical validation",
+  "strategy": "universal",
+  "symbol": "SOL-PERP",
+  "timeframe": "1m",
+  "parameters": {
+    "e3_bodyOverAtr": [0.4, 0.5, 0.6, 0.8],
+    "e3_volumeZ": [1.8, 2.0, 2.5, 3.0],
+    "e3_premiumPct": [0.002, 0.003, 0.004],
+    "e3_realizedVol": [2.5, 3.0, 4.0, 5.0],
+    "e3_spreadBps": [25, 30, 40, 50],
+    "e3_bigMoveVolumeZ": [2.0, 2.5, 3.0],
+    "e3_bigMoveBodyAtr": [0.6, 0.8, 1.0],
+    "e3_confidenceMultiplier": [0.8, 1.0, 1.2],
+    "e3_takeProfitPct": [0.015, 0.02, 0.025],
+    "e3_stopLossPct": [0.008, 0.01, 0.012],
+    "e3_trailingStopPct": [0.004, 0.005, 0.008],
+    
+    "ff_fundingZ": [0.0003, 0.0005, 0.0008],
+    "ff_premiumPct": [0.002, 0.003, 0.005],
+    "ff_spreadBps": [30, 40, 50],
+    "ff_volumeZ": [1.2, 1.5, 2.0],
+    "ff_takeProfitPct": [0.01, 0.015, 0.02],
+    "ff_stopLossPct": [0.008, 0.01, 0.012],
+    "ff_fundingNormalizeThreshold": [0.00003, 0.00005, 0.00008],
+    
+    "ra_aiConfidenceWeight": [0.3, 0.5, 0.7],
+    "ra_regimeOverride": [true, false],
+    "ra_minConfidence": [0.2, 0.3, 0.4],
+    
+    "universal_minConfidence": [0.3, 0.4, 0.5],
+    "universal_maxSingleWeight": [0.6, 0.7, 0.8],
+    "universal_performanceDecay": [0.9, 0.95, 0.98],
+    "universal_adaptationRate": [0.05, 0.1, 0.15, 0.2]
+  },
+  "walkForwardAnalysis": {
+    "enabled": true,
+    "trainingWindowMonths": 3,
+    "validationWindowMonths": 1,
+    "stepSizeWeeks": 2,
+    "minTradesForValidity": 50,
+    "confidenceLevel": 0.95
+  },
+  "constraints": {
+    "maxCombinations": 1500,
+    "earlyStopRules": {
+      "minProfitFactor": 1.05,
+      "maxDrawdownPct": 25.0,
+      "maxTradesPerDay": 40,
+      "minWinRate": 0.2,
+      "minSharpeRatio": 0.5,
+      "minTradeCount": 30
+    },
+    "regimeWeights": {
+      "bull_trend": 1.3,
+      "high_vol": 1.2,
+      "bear_trend": 1.0,
+      "chop": 0.8,
+      "crash": 0.6
+    },
+    "statisticalSignificance": {
+      "minPValue": 0.05,
+      "minTStatistic": 1.96,
+      "bootstrapSamples": 1000,
+      "monteCarloRuns": 500
+    }
+  },
+  "backtestPeriods": [
+    {
+      "name": "bull_optimization_2023",
+      "start": "2023-10-01",
+      "end": "2023-12-31",
+      "weight": 1.5,
+      "regime": "bull_trend"
+    },
+    {
+      "name": "mixed_optimization_2024_q2",
+      "start": "2024-04-01",
+      "end": "2024-06-30",
+      "weight": 1.2,
+      "regime": "mixed"
+    },
+    {
+      "name": "chop_optimization_2024_summer",
+      "start": "2024-06-01",
+      "end": "2024-07-31",
+      "weight": 1.0,
+      "regime": "chop"
+    }
+  ],
+  "validationPeriods": [
+    {
+      "name": "difficult_validation_aug2024",
+      "start": "2024-08-01",
+      "end": "2024-08-31",
+      "weight": 2.0,
+      "regime": "difficult"
+    },
+    {
+      "name": "recent_validation_sep2024",
+      "start": "2024-09-01",
+      "end": "2024-09-30",
+      "weight": 1.5,
+      "regime": "recent"
+    }
+  ],
+  "scoring": {
+    "primaryMetric": "risk_adjusted_return",
+    "metrics": {
+      "totalReturn": 0.2,
+      "sharpeRatio": 0.25,
+      "sortinoRatio": 0.15,
+      "calmarRatio": 0.1,
+      "maxDrawdown": 0.15,
+      "winRate": 0.1,
+      "profitFactor": 0.05
+    },
+    "penalties": {
+      "excessiveTrades": 0.1,
+      "highVolatility": 0.05,
+      "regimeInstability": 0.05,
+      "overfitting": 0.1
+    },
+    "bonuses": {
+      "statisticalSignificance": 0.15,
+      "consistentPerformance": 0.1,
+      "regimeAdaptability": 0.05
+    }
+  },
+  "execution": {
+    "initialEquity": 1000,
+    "tradingFees": 0.001,
+    "slippage": 0.0005,
+    "maxLeverage": 3.0,
+    "regimeLeverageSchedule": {
+      "bull_trend": 3.0,
+      "high_vol": 2.5,
+      "bear_trend": 2.0,
+      "chop": 1.5,
+      "crash": 1.0
+    },
+    "riskManagement": {
+      "maxPositionSize": 500,
+      "maxDailyLoss": 50,
+      "maxConsecutiveLosses": 5,
+      "volatilityScaling": true
+    }
+  },
+  "reporting": {
+    "generateWalkForwardReport": true,
+    "generateRegimeAnalysis": true,
+    "generateStatisticalReport": true,
+    "generateTradeAnalysis": true,
+    "outputFormats": ["json", "csv", "html"],
+    "includeCharts": true,
+    "detailedLogs": true
+  },
+  "optimization": {
+    "method": "staged_search",
+    "stages": [
+      {
+        "name": "coarse_grid",
+        "method": "grid_search",
+        "parameterReduction": 0.5,
+        "maxCombinations": 500,
+        "earlyStop": true
+      },
+      {
+        "name": "fine_tuning",
+        "method": "bayesian_optimization",
+        "iterations": 200,
+        "acquisitionFunction": "expected_improvement",
+        "explorationWeight": 0.1
+      },
+      {
+        "name": "validation",
+        "method": "monte_carlo",
+        "samples": 100,
+        "confidenceInterval": 0.95
+      }
+    ],
+    "parallelization": {
+      "enabled": true,
+      "maxWorkers": 4,
+      "chunkSize": 25
+    }
+  },
+  "riskControls": {
+    "maxDrawdownStop": 0.3,
+    "minSharpeThreshold": 0.3,
+    "maxCorrelationWithMarket": 0.8,
+    "minDiversificationRatio": 0.6,
+    "stressTestScenarios": [
+      "2022_bear_market",
+      "2020_covid_crash",
+      "2018_crypto_winter",
+      "high_volatility_regime",
+      "low_liquidity_conditions"
+    ]
+  },
+  "monteCarloAnalysis": {
+    "enabled": true,
+    "scenarios": 1000,
+    "confidenceLevels": [0.95, 0.99],
+    "stressTestMultipliers": [1.5, 2.0, 3.0],
+    "correlationAnalysis": true,
+    "tailRiskAnalysis": true
+  }
+}

@@ -13,6 +13,7 @@ import type {
 import { E3Strategy } from '@/strategies/e3';
 import { FundingFadeStrategy } from '@/strategies/fundingFade';
 import { RegimeAdaptiveStrategy } from '@/strategies/regimeAdaptive';
+import { UniversalStrategy } from '@/strategies/universal';
 
 /**
  * Strategy Manager Class
@@ -57,6 +58,15 @@ export class StrategyManager {
   public createRegimeAdaptiveStrategy(config: StrategyConfig): RegimeAdaptiveStrategy {
     const strategy = new RegimeAdaptiveStrategy(config);
     this.registerStrategy('regimeAdaptive', strategy);
+    return strategy;
+  }
+
+  /**
+   * Create and register Universal ensemble strategy
+   */
+  public createUniversalStrategy(config: StrategyConfig): UniversalStrategy {
+    const strategy = new UniversalStrategy(config);
+    this.registerStrategy('universal', strategy);
     return strategy;
   }
 
