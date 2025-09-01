@@ -1,0 +1,318 @@
+{
+  "bullTrendSequence": [
+    {
+      "price": 100,
+      "volume": 1000000,
+      "volatility": 0.015,
+      "bodyOverAtr": 0.6,
+      "volumeZ": 2.8,
+      "spreadBps": 12,
+      "premiumPct": 0.0008,
+      "realizedVol": 2.2,
+      "openInterest": 55000000,
+      "fundingRate": 0.0001,
+      "obImbalance": 0.7,
+      "timestamp": 1703980800000
+    },
+    {
+      "price": 101.5,
+      "volume": 1200000,
+      "volatility": 0.018,
+      "bodyOverAtr": 0.8,
+      "volumeZ": 3.2,
+      "spreadBps": 15,
+      "premiumPct": 0.0012,
+      "realizedVol": 2.8,
+      "openInterest": 56000000,
+      "fundingRate": 0.00015,
+      "obImbalance": 0.8,
+      "timestamp": 1703980860000
+    },
+    {
+      "price": 103.2,
+      "volume": 1500000,
+      "volatility": 0.022,
+      "bodyOverAtr": 0.9,
+      "volumeZ": 3.8,
+      "spreadBps": 18,
+      "premiumPct": 0.0015,
+      "realizedVol": 3.2,
+      "openInterest": 57000000,
+      "fundingRate": 0.0002,
+      "obImbalance": 0.85,
+      "timestamp": 1703980920000
+    }
+  ],
+  "bearTrendSequence": [
+    {
+      "price": 100,
+      "volume": 1100000,
+      "volatility": 0.025,
+      "bodyOverAtr": -0.7,
+      "volumeZ": 3.1,
+      "spreadBps": 16,
+      "premiumPct": -0.0009,
+      "realizedVol": 2.8,
+      "openInterest": 54000000,
+      "fundingRate": -0.0001,
+      "obImbalance": -0.75,
+      "timestamp": 1703980800000
+    },
+    {
+      "price": 98.2,
+      "volume": 1400000,
+      "volatility": 0.032,
+      "bodyOverAtr": -0.85,
+      "volumeZ": 3.6,
+      "spreadBps": 22,
+      "premiumPct": -0.0015,
+      "realizedVol": 3.5,
+      "openInterest": 53000000,
+      "fundingRate": -0.00018,
+      "obImbalance": -0.82,
+      "timestamp": 1703980860000
+    },
+    {
+      "price": 96.1,
+      "volume": 1800000,
+      "volatility": 0.038,
+      "bodyOverAtr": -1.1,
+      "volumeZ": 4.2,
+      "spreadBps": 28,
+      "premiumPct": -0.002,
+      "realizedVol": 4.1,
+      "openInterest": 52000000,
+      "fundingRate": -0.00025,
+      "obImbalance": -0.88,
+      "timestamp": 1703980920000
+    }
+  ],
+  "sidewaysSequence": [
+    {
+      "price": 100,
+      "volume": 800000,
+      "volatility": 0.008,
+      "bodyOverAtr": 0.1,
+      "volumeZ": 1.2,
+      "spreadBps": 8,
+      "premiumPct": 0.0002,
+      "realizedVol": 1.1,
+      "openInterest": 50000000,
+      "fundingRate": 0.00005,
+      "obImbalance": 0.15,
+      "timestamp": 1703980800000
+    },
+    {
+      "price": 100.3,
+      "volume": 750000,
+      "volatility": 0.006,
+      "bodyOverAtr": -0.05,
+      "volumeZ": 0.9,
+      "spreadBps": 7,
+      "premiumPct": -0.0001,
+      "realizedVol": 0.8,
+      "openInterest": 50100000,
+      "fundingRate": 0.00003,
+      "obImbalance": -0.1,
+      "timestamp": 1703980860000
+    },
+    {
+      "price": 99.8,
+      "volume": 820000,
+      "volatility": 0.007,
+      "bodyOverAtr": 0.08,
+      "volumeZ": 1.1,
+      "spreadBps": 9,
+      "premiumPct": 0.0001,
+      "realizedVol": 0.9,
+      "openInterest": 49900000,
+      "fundingRate": 0.00004,
+      "obImbalance": 0.12,
+      "timestamp": 1703980920000
+    }
+  ],
+  "volatileSequence": [
+    {
+      "price": 100,
+      "volume": 2000000,
+      "volatility": 0.055,
+      "bodyOverAtr": 0.4,
+      "volumeZ": 2.1,
+      "spreadBps": 35,
+      "premiumPct": 0.003,
+      "realizedVol": 5.2,
+      "openInterest": 48000000,
+      "fundingRate": 0.0003,
+      "obImbalance": 0.3,
+      "timestamp": 1703980800000
+    },
+    {
+      "price": 97.5,
+      "volume": 2500000,
+      "volatility": 0.068,
+      "bodyOverAtr": -0.6,
+      "volumeZ": 2.8,
+      "spreadBps": 42,
+      "premiumPct": -0.004,
+      "realizedVol": 6.1,
+      "openInterest": 47000000,
+      "fundingRate": -0.0002,
+      "obImbalance": -0.4,
+      "timestamp": 1703980860000
+    },
+    {
+      "price": 103.2,
+      "volume": 2200000,
+      "volatility": 0.072,
+      "bodyOverAtr": 0.8,
+      "volumeZ": 3.2,
+      "spreadBps": 38,
+      "premiumPct": 0.0045,
+      "realizedVol": 6.8,
+      "openInterest": 46000000,
+      "fundingRate": 0.00035,
+      "obImbalance": 0.5,
+      "timestamp": 1703980920000
+    }
+  ],
+  "fundingFadeScenarios": [
+    {
+      "highPositiveFunding": {
+        "price": 100,
+        "volume": 1000000,
+        "volatility": 0.02,
+        "bodyOverAtr": 0.2,
+        "volumeZ": 1.8,
+        "spreadBps": 15,
+        "premiumPct": 0.008,
+        "realizedVol": 2.5,
+        "openInterest": 50000000,
+        "fundingRate": 0.01,
+        "obImbalance": -0.3,
+        "timestamp": 1703980800000
+      }
+    },
+    {
+      "highNegativeFunding": {
+        "price": 100,
+        "volume": 1000000,
+        "volatility": 0.02,
+        "bodyOverAtr": -0.2,
+        "volumeZ": 1.8,
+        "spreadBps": 15,
+        "premiumPct": -0.008,
+        "realizedVol": 2.5,
+        "openInterest": 50000000,
+        "fundingRate": -0.01,
+        "obImbalance": 0.3,
+        "timestamp": 1703980800000
+      }
+    }
+  ],
+  "extremeScenarios": [
+    {
+      "marketCrash": {
+        "price": 60,
+        "volume": 5000000,
+        "volatility": 0.12,
+        "bodyOverAtr": -2.5,
+        "volumeZ": 8.0,
+        "spreadBps": 150,
+        "premiumPct": -0.02,
+        "realizedVol": 12.0,
+        "openInterest": 30000000,
+        "fundingRate": -0.005,
+        "obImbalance": -0.95,
+        "timestamp": 1703980800000
+      }
+    },
+    {
+      "flashPump": {
+        "price": 150,
+        "volume": 4500000,
+        "volatility": 0.08,
+        "bodyOverAtr": 3.2,
+        "volumeZ": 7.5,
+        "spreadBps": 120,
+        "premiumPct": 0.015,
+        "realizedVol": 8.5,
+        "openInterest": 35000000,
+        "fundingRate": 0.008,
+        "obImbalance": 0.92,
+        "timestamp": 1703980800000
+      }
+    }
+  ],
+  "backtestSequence": [
+    {
+      "price": 100,
+      "volume": 1000000,
+      "volatility": 0.02,
+      "bodyOverAtr": 0.3,
+      "volumeZ": 1.5,
+      "spreadBps": 10,
+      "premiumPct": 0.001,
+      "realizedVol": 2.0,
+      "openInterest": 50000000,
+      "fundingRate": 0.0001,
+      "obImbalance": 0.1,
+      "timestamp": 1703980800000
+    },
+    {
+      "price": 101.2,
+      "volume": 1200000,
+      "volatility": 0.025,
+      "bodyOverAtr": 0.7,
+      "volumeZ": 2.8,
+      "spreadBps": 12,
+      "premiumPct": 0.0008,
+      "realizedVol": 2.5,
+      "openInterest": 51000000,
+      "fundingRate": 0.00012,
+      "obImbalance": 0.75,
+      "timestamp": 1703980860000
+    },
+    {
+      "price": 102.8,
+      "volume": 1100000,
+      "volatility": 0.022,
+      "bodyOverAtr": 0.5,
+      "volumeZ": 2.2,
+      "spreadBps": 11,
+      "premiumPct": 0.0012,
+      "realizedVol": 2.8,
+      "openInterest": 52000000,
+      "fundingRate": 0.00015,
+      "obImbalance": 0.4,
+      "timestamp": 1703980920000
+    },
+    {
+      "price": 101.5,
+      "volume": 900000,
+      "volatility": 0.018,
+      "bodyOverAtr": -0.3,
+      "volumeZ": 1.8,
+      "spreadBps": 9,
+      "premiumPct": 0.0005,
+      "realizedVol": 2.2,
+      "openInterest": 51500000,
+      "fundingRate": 0.0001,
+      "obImbalance": -0.2,
+      "timestamp": 1703980980000
+    },
+    {
+      "price": 100.8,
+      "volume": 1050000,
+      "volatility": 0.02,
+      "bodyOverAtr": 0.1,
+      "volumeZ": 1.6,
+      "spreadBps": 10,
+      "premiumPct": 0.0003,
+      "realizedVol": 2.0,
+      "openInterest": 51200000,
+      "fundingRate": 0.00008,
+      "obImbalance": 0.05,
+      "timestamp": 1703981040000
+    }
+  ]
+}

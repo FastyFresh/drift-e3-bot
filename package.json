@@ -28,8 +28,12 @@
     "clean": "rm -rf dist node_modules/.cache",
     "cleanup": "chmod +x scripts/cleanup.sh && ./scripts/cleanup.sh",
     "// Testing & Quality": "",
-    "test": "echo 'Tests coming soon' && exit 0",
-    "test:watch": "echo 'Test watch coming soon' && exit 0",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:ci": "jest --ci --coverage --watchAll=false",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write src/**/*.ts",
@@ -76,8 +80,10 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@jest/globals": "^30.1.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/bn.js": "^5.2.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.19.11",
     "@types/node-fetch": "^2.6.13",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
@@ -85,8 +91,11 @@
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-prettier": "^5.5.4",
+    "jest": "^30.1.1",
+    "jest-environment-node": "^30.1.1",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
+    "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
